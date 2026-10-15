@@ -1,0 +1,1309 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="dark">
+<title>RFI Raid Poll</title>
+<meta name="description" content="Room for Improvement: WoW Forever faction and raid-time poll">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0f1117;--card:#171a23;--card-2:#1d2130;--card-3:#242a3b;
+  --line:#262b38;--line-2:#343b4f;
+  --text:#f3f4f6;--text-2:#b4b8c5;--muted:#8a8f9e;
+  --gold:#d4a24a;--gold-2:#e8c272;--gold-dim:rgba(212,162,74,.14);
+  --horde:#ec6b6b;--horde-2:#ad5552;--ally:#5a9cf5;--ally-2:#4a6fb0;--neutral:#484e60;
+  --good:#0ca30c;--warn:#fab219;--violet:#9085e9;--lost:#6b7280;--danger:#e66767;
+  --radius:12px;
+  --sans:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  --display:"Cinzel",Georgia,"Times New Roman",serif;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{margin:0;background:var(--bg);color:var(--text);font-family:var(--sans);font-size:16px;line-height:1.5;-webkit-text-size-adjust:100%}
+a{color:var(--gold-2)}
+button,input,select,textarea{font:inherit;color:inherit}
+.wrap{max-width:980px;margin:0 auto;padding:20px 16px 72px}
+
+/* header */
+.top{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:12px;padding:6px 0 18px;border-bottom:1px solid var(--line);margin-bottom:20px}
+.brand h1{font-family:var(--display);font-weight:700;font-size:26px;letter-spacing:.04em;margin:0;color:var(--gold-2)}
+.brand .sub{color:var(--text-2);font-size:14px;margin-top:2px}
+.tabs{display:flex;gap:6px}
+.tabs a{display:inline-block;padding:8px 16px;border-radius:999px;border:1px solid var(--line-2);color:var(--text-2);text-decoration:none;font-weight:600;font-size:14px}
+.tabs a.active{background:var(--gold-dim);border-color:var(--gold);color:var(--gold-2)}
+
+/* cards & text */
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:20px;margin-bottom:16px}
+.card.error{border-color:var(--danger)}
+.card-title{font-family:var(--display);font-size:17px;letter-spacing:.03em;color:var(--gold-2);margin:0 0 6px;font-weight:600}
+h3{font-size:15px;margin:18px 0 8px;font-weight:650;color:var(--text)}
+.help{color:var(--muted);font-size:14px;margin:0 0 12px}
+.help.inline{display:inline;margin:0 0 0 8px}
+.req{color:var(--danger);font-weight:700}
+.opt{color:var(--muted);font-style:normal;font-weight:400}
+.muted{color:var(--muted)}
+.center{text-align:center;color:var(--text-2)}
+code{background:var(--card-3);padding:1px 6px;border-radius:6px;font-size:.92em}
+.section-head{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:baseline;gap:8px}
+
+/* fields */
+.fields{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}
+.field{display:flex;flex-direction:column;gap:6px;font-size:14px;color:var(--text-2)}
+.field input,textarea,select{background:var(--card-2);border:1px solid var(--line-2);border-radius:8px;padding:10px 12px;color:var(--text);width:100%}
+.field input:focus,textarea:focus,select:focus{outline:2px solid var(--gold);outline-offset:1px;border-color:var(--gold)}
+textarea{resize:vertical;min-height:80px}
+
+/* choices */
+.choices{display:grid;gap:8px;grid-template-columns:repeat(auto-fit,minmax(160px,1fr))}
+.choice{position:relative;display:flex;align-items:center;gap:10px;padding:12px 14px;border:1px solid var(--line-2);border-radius:10px;background:var(--card-2);cursor:pointer;transition:border-color .15s,background .15s;font-size:15px}
+.choice input{position:absolute;opacity:0;pointer-events:none;width:0;height:0}
+.choice:hover{border-color:var(--gold)}
+.choice:focus-within{outline:2px solid var(--gold);outline-offset:1px}
+.choice.selected{border-color:var(--gold);background:var(--gold-dim);box-shadow:inset 0 0 0 1px var(--gold)}
+.dot{width:12px;height:12px;border-radius:50%;flex:none;background:var(--neutral)}
+.f-hordeReq{background:var(--horde)}.f-hordePref{background:var(--horde-2)}.f-either{background:var(--neutral)}.f-allyPref{background:var(--ally-2)}.f-allyReq{background:var(--ally)}
+.subq{margin-top:14px;padding:14px;border-radius:10px;background:var(--card-2);border:1px dashed var(--line-2)}
+.subq h3{margin-top:0}
+.checks{display:grid;gap:6px;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));margin-bottom:12px}
+.check{display:flex;align-items:center;gap:10px;font-size:15px;cursor:pointer;padding:6px 4px}
+.check input{width:18px;height:18px;accent-color:var(--gold);margin:0;flex:none}
+.check.inline{display:inline-flex;padding:0;font-size:14px;color:var(--text-2)}
+
+/* availability grid */
+.tzrow{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:10px;font-size:14px;color:var(--text-2)}
+.tzrow label{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.tzrow select{width:auto;max-width:100%;padding:6px 10px}
+.brushes{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-bottom:10px}
+.brush{border:1px solid var(--line-2);background:var(--card-2);border-radius:999px;padding:6px 14px;cursor:pointer;font-size:14px;display:inline-flex;align-items:center;gap:8px}
+.brush::before{content:"";width:12px;height:12px;border-radius:3px;background:var(--card-3);border:1px solid var(--line-2)}
+.brush.s2::before{background:var(--good);border-color:var(--good)}
+.brush.s1::before{background:var(--warn);border-color:var(--warn)}
+.brush.active{border-color:var(--gold);box-shadow:inset 0 0 0 1px var(--gold);background:var(--gold-dim)}
+.grid-wrap{overflow-x:auto;padding-bottom:4px}
+table.grid{border-collapse:separate;border-spacing:2px;user-select:none;-webkit-user-select:none}
+table.grid th{font-weight:500;color:var(--text-2);font-size:13px;padding:0}
+table.grid th.day{text-align:left;padding-right:8px;white-space:nowrap;min-width:52px}
+table.grid th.day small{display:block;color:var(--muted);font-size:11px;font-weight:400}
+table.grid th.time{width:30px;font-size:11px;color:var(--muted);vertical-align:bottom;height:34px;white-space:nowrap;text-align:left}
+td.cell{width:30px;height:32px;border-radius:4px;background:var(--card-2);border:1px solid var(--line-2);cursor:pointer;touch-action:none;text-align:center;font-size:12px;line-height:1;color:transparent;padding:0}
+td.cell.s2{background:var(--good);border-color:var(--good);color:#06250b}
+td.cell.s1{background:var(--warn);border-color:var(--warn);color:#3d2a00}
+td.cell:focus{outline:2px solid var(--gold);outline-offset:1px}
+td.rowbtns{white-space:nowrap;padding-left:6px}
+.mini{border:1px solid var(--line-2);background:transparent;color:var(--text-2);border-radius:6px;padding:3px 8px;font-size:12px;cursor:pointer;margin-left:4px}
+.mini:hover{border-color:var(--gold);color:var(--gold-2)}
+
+/* buttons & notices */
+.btn{border:1px solid var(--line-2);background:var(--card-2);color:var(--text);border-radius:10px;padding:10px 18px;font-weight:600;cursor:pointer;text-decoration:none;display:inline-block}
+.btn:hover{border-color:var(--gold)}
+.btn-primary{background:var(--gold);border-color:var(--gold);color:#1a1405}
+.btn-primary:hover{background:var(--gold-2)}
+.btn:disabled{opacity:.6;cursor:default}
+.btn.small{padding:6px 12px;font-size:13px}
+.submit-row{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin:8px 0 12px}
+.notice{border-radius:10px;padding:12px 14px;margin:0 0 16px;font-size:14px;border:1px solid var(--line-2);background:var(--card-2)}
+.notice.error{border-color:var(--danger);color:#ffd9d9}
+.notice.success{border-color:var(--good)}
+.notice.info{border-color:var(--gold);color:var(--text-2)}
+.notice .btn{margin-left:8px}
+
+/* results: filter bar, stats, bars */
+.filterbar{position:sticky;top:0;z-index:5;box-shadow:0 8px 24px rgba(0,0,0,.35);padding:12px 16px}
+.filterbar .help{margin:8px 0 0;font-size:13px}
+.filter-row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.filter-title{font-weight:650;margin-right:4px}
+.chip{border:1px solid var(--line-2);background:var(--card-2);color:var(--text-2);border-radius:999px;padding:6px 12px;font-size:14px;cursor:pointer;display:inline-flex;align-items:center;gap:6px}
+.chip.on{border-color:var(--gold);background:var(--gold-dim);color:var(--gold-2)}
+.chip-n{font-size:12px;color:var(--muted);background:var(--card-3);padding:0 7px;border-radius:999px}
+.chip.on .chip-n{color:var(--gold-2)}
+.chip.toggle{margin-left:auto}
+.stats{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));margin-bottom:16px}
+.stat{background:var(--card-2);border:1px solid var(--line);border-radius:10px;padding:12px 14px}
+.stat-val{font-size:28px;font-weight:700;line-height:1.1}
+.stat-label{font-size:13px;color:var(--muted);margin-top:4px}
+.bars{display:grid;gap:6px}
+.bar-row{display:grid;grid-template-columns:minmax(120px,200px) 1fr 70px;gap:10px;align-items:center;font-size:14px}
+.bar-label{color:var(--text-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bar-track{height:14px;background:var(--card-2);border-radius:4px;overflow:hidden}
+.bar-fill{height:100%;border-radius:0 4px 4px 0;background:var(--gold)}
+.bar-val{font-variant-numeric:tabular-nums}
+.divbar{display:flex;gap:2px;height:30px;border-radius:6px;overflow:hidden;margin:6px 0 10px}
+.divbar .seg{display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;color:#fff;min-width:0;overflow:hidden}
+.divbar .seg.f-hordeReq,.divbar .seg.f-allyReq{color:#0b0b0b}
+.legend{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:13px;color:var(--text-2)}
+.legend .sw{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:6px;vertical-align:-1px}
+.two-col{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(260px,1fr))}
+.cost{background:var(--card-2);border:1px solid var(--line);border-radius:10px;padding:14px;border-top:3px solid var(--neutral)}
+.cost.horde{border-top-color:var(--horde)}.cost.ally{border-top-color:var(--ally)}
+.cost h3{margin:0 0 8px}
+.cost ul{margin:0;padding-left:18px;color:var(--text-2);font-size:14px}
+.cost b{color:var(--text)}
+table.simple{border-collapse:collapse;width:100%;font-size:14px}
+table.simple th,table.simple td{padding:7px 10px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+table.simple th{color:var(--muted);font-weight:500;font-size:13px}
+table.simple td.num,table.simple th.num{text-align:right;font-variant-numeric:tabular-nums}
+.tablewrap{overflow-x:auto}
+
+/* decision board */
+.scenario{display:flex;flex-wrap:wrap;gap:10px 14px;align-items:center;margin:4px 0 14px}
+.seg{display:inline-flex;border:1px solid var(--line-2);border-radius:999px;overflow:hidden}
+.seg-btn{border:0;background:transparent;color:var(--text-2);padding:7px 16px;cursor:pointer;font-weight:600}
+.seg-btn.on.horde{background:var(--horde);color:#0b0b0b}
+.seg-btn.on.ally{background:var(--ally);color:#0b0b0b}
+.daychips{display:inline-flex;gap:6px;flex-wrap:wrap}
+.sel{display:inline-flex;align-items:center;gap:8px;font-size:14px;color:var(--text-2)}
+.sel select{width:auto;padding:6px 10px}
+.sc-title{font-size:16px;font-weight:650;margin:0 0 10px}
+.sc-title .f-horde{color:var(--horde)}.sc-title .f-ally{color:var(--ally)}
+.buckets{display:grid;gap:8px;margin-bottom:8px}
+.bucket{display:grid;grid-template-columns:28px minmax(120px,190px) 1fr 60px;grid-template-areas:"ic bl bar n";gap:8px 10px;align-items:center;font-size:14px}
+.bucket .ic{grid-area:ic;width:26px;height:26px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#0b0b0b}
+.bucket .bl{grid-area:bl;color:var(--text);line-height:1.25}
+.bucket .bl small{display:block;color:var(--muted);font-size:12px}
+.bucket .bar-track{grid-area:bar;height:12px}
+.bucket .n{grid-area:n;font-size:18px;font-weight:700;text-align:right;font-variant-numeric:tabular-nums}
+details.members{margin:-2px 0 6px 38px;font-size:13px;color:var(--text-2)}
+details.members summary{cursor:pointer;color:var(--gold-2);font-size:13px}
+details.members ul{margin:6px 0 0;padding-left:18px}
+details.members li b{color:var(--text);font-weight:600}
+.flag{display:inline-block;font-size:11px;padding:0 6px;border-radius:999px;background:var(--card-3);color:var(--text-2);margin-left:6px;white-space:nowrap}
+table.matrix{border-collapse:separate;border-spacing:3px;font-size:14px}
+table.matrix th{font-weight:500;color:var(--muted);font-size:12px;padding:2px 4px;text-align:center;white-space:nowrap;vertical-align:bottom}
+table.matrix th.rowh{text-align:left;font-weight:650;font-size:14px;color:var(--text)}
+table.matrix th.cand{color:var(--gold-2)}
+table.matrix td{padding:0}
+.mcell{display:flex;flex-direction:column;align-items:center;justify-content:center;width:74px;height:50px;border-radius:8px;border:1px solid transparent;cursor:pointer;background:var(--card-2);line-height:1.1;padding:0}
+.mcell b{font-size:18px}
+.mcell small{font-size:11px;opacity:.85}
+.mcell.active{outline:2px solid var(--gold);outline-offset:1px}
+.mcell.cand{border-color:var(--gold)}
+
+/* heatmap & windows */
+table.heat{border-collapse:separate;border-spacing:2px;font-size:12px}
+table.heat th{font-weight:500;color:var(--muted);font-size:11px;padding:0 2px;white-space:nowrap;text-align:left;vertical-align:bottom}
+table.heat th.day{text-align:left;color:var(--text-2);font-size:13px;padding-right:8px}
+table.heat td{padding:0}
+.hcell{width:44px;height:36px;border-radius:4px;display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1;border:1px solid transparent;background:var(--card-2);padding:0}
+.hcell b{font-size:13px;font-weight:650}
+.hcell small{font-size:10px;opacity:.85}
+.hcell.clickable{cursor:pointer}
+.hcell.sel{outline:2px solid var(--gold);outline-offset:1px}
+.hcell.cand{border-color:var(--gold)}
+ol.winlist{margin:0;padding-left:22px;font-size:14px;color:var(--text-2)}
+ol.winlist li{padding:4px 0;border-bottom:1px solid var(--line)}
+ol.winlist li>div{display:flex;gap:10px;align-items:center}
+ol.winlist li span{flex:1}
+ol.winlist li b{color:var(--text);font-variant-numeric:tabular-nums}
+ol.winlist li small{color:var(--muted);width:40px;font-variant-numeric:tabular-nums}
+.namecols{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));font-size:13px;margin-top:10px}
+.namecols h4{margin:0 0 4px;font-size:13px}
+.namecols ul{margin:0;padding-left:16px;color:var(--text-2)}
+.comment{border-left:3px solid var(--gold);padding:6px 12px;margin:0 0 10px;background:var(--card-2);border-radius:0 8px 8px 0;white-space:pre-wrap}
+.comment .who{font-size:13px;color:var(--muted);white-space:normal}
+.adminbar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;background:var(--gold-dim);border:1px solid var(--gold);border-radius:10px;padding:10px 14px;margin-bottom:16px;font-size:14px}
+.adminbar .actions{display:flex;gap:8px;flex-wrap:wrap}
+.mg{display:inline-grid;grid-template-columns:repeat(12,6px);gap:1px;vertical-align:middle}
+.mg i{display:block;width:6px;height:5px;background:var(--card-3);border-radius:1px}
+.mg i.s2{background:var(--good)}.mg i.s1{background:var(--warn)}
+.foot{margin-top:28px;padding-top:14px;border-top:1px solid var(--line);color:var(--muted);font-size:13px;display:flex;flex-wrap:wrap;gap:12px;justify-content:space-between}
+.foot button{background:none;border:0;color:var(--muted);cursor:pointer;text-decoration:underline;padding:0}
+.loading{opacity:.55;pointer-events:none}
+
+@media (max-width:640px){
+  .brand h1{font-size:22px}
+  .card{padding:16px 14px}
+  td.cell{width:23px;height:30px}
+  table.grid th.time{width:23px;font-size:10px}
+  td.rowbtns{display:none}
+  .bar-row{grid-template-columns:110px 1fr 56px}
+  .bucket{grid-template-columns:28px 1fr 56px;grid-template-areas:"ic bl n" "bar bar bar"}
+  details.members{margin-left:0}
+  .mcell{width:58px;height:46px}
+  .hcell{width:30px;height:32px}
+  .hcell small{display:none}
+  .chip.toggle{margin-left:0}
+  .filterbar{position:static;box-shadow:none}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="brand">
+      <h1 id="brandName">Room for Improvement</h1>
+      <div class="sub" id="brandSub">WoW Forever faction &amp; raid-time poll</div>
+    </div>
+    <nav class="tabs" aria-label="Pages">
+      <a href="#poll" data-page="poll">Poll</a>
+      <a href="#results" data-page="results">Results</a>
+    </nav>
+  </header>
+  <div id="banner"></div>
+  <main id="view"></main>
+  <footer class="foot" id="foot"></footer>
+</div>
+
+<script>
+'use strict';
+
+// =====================================================================
+// CONFIG - the only block you need to edit
+// =====================================================================
+const CONFIG = {
+  endpoint: 'https://script.google.com/macros/s/AKfycbxeTB9tDSEnaxJ2uVK3UlqBM0rZKnR_vrv5gX_DcSPglIII37CZRhBVNx8CH9hifBkFwA/exec',            // paste your Apps Script web app URL here (ends in /exec). Empty = demo mode.
+  guildName: 'Room for Improvement',
+  guildShort: 'RFI',
+  gameName: 'WoW Forever',
+  pacificTz: 'America/Los_Angeles',
+  days: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'],
+  dayLong: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'],
+  startHour: 17,           // grid starts at 5:00 PM Pacific
+  slots: 12,               // 12 half-hour slots: 5:00 PM to 11:00 PM
+  windowLen: 6,            // default raid length in half-hours (6 = 3 hours)
+  candidates: {            // the two Tue/Wed blocks the poll asks about directly
+    early: { start: 3, note: 'proposed' },   // 6:30-9:30 PM
+    late:  { start: 5, note: 'current' }     // 7:30-10:30 PM
+  },
+  defaultInclude: ['in', 'likely'],
+  weights: { in: 1, likely: 0.75, undecided: 0.5, unlikely: 0.25, out: 0 }
+};
+
+const L = {
+  interest: { in: 'Count me in', likely: 'Likely', undecided: 'Undecided', unlikely: 'Unlikely', out: 'Not playing' },
+  interestLong: { in: 'Count me in', likely: 'Likely', undecided: 'Undecided', unlikely: 'Unlikely', out: 'Not playing WoW Forever' },
+  interestOrder: ['in', 'likely', 'undecided', 'unlikely', 'out'],
+  faction: { hordeReq: 'Horde required', hordePref: 'Prefer Horde', either: 'Either is fine', allyPref: 'Prefer Alliance', allyReq: 'Alliance required' },
+  factionOrder: ['hordeReq', 'hordePref', 'either', 'allyPref', 'allyReq'],
+  block: { early: '6:30–9:30 PM', late: '7:30–10:30 PM', either: 'Either works', neither: 'Neither works' },
+  blockLong: { early: '6:30–9:30 PM Pacific (an hour earlier)', late: '7:30–10:30 PM Pacific (what we do now)', either: 'Either block works', neither: 'Neither block works for me' },
+  blockOrder: ['early', 'late', 'either', 'neither'],
+  reasons: { faction: 'Which faction we pick', time: 'Which days or times we raid', people: 'Who else from RFI is playing', game: "Whether I'll play WoW Forever at all", life: 'Real-life schedule', other: 'Something else' },
+  reasonOrder: ['faction', 'time', 'people', 'game', 'life', 'other'],
+  factionName: { horde: 'Horde', ally: 'Alliance' }
+};
+
+// =====================================================================
+// Small helpers
+// =====================================================================
+const $ = (sel, root) => (root || document).querySelector(sel);
+const $$ = (sel, root) => Array.from((root || document).querySelectorAll(sel));
+const view = $('#view');
+const GLYPH = { 0: '', 1: '~', 2: '✓' };
+const NEXT = { 0: 2, 2: 1, 1: 0 };
+
+function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
+function fmtN(n) { return Number.isInteger(n) ? String(n) : (Math.round(n * 10) / 10).toFixed(1); }
+function fmtClock(mins, compact) {
+  const h = Math.floor(mins / 60) % 24, m = mins % 60, ap = h >= 12 ? 'PM' : 'AM';
+  let h12 = h % 12; if (h12 === 0) h12 = 12;
+  if (compact) return m === 0 ? `${h12}${ap.toLowerCase()}` : `${h12}:${String(m).padStart(2, '0')}${ap.toLowerCase()}`;
+  return `${h12}:${String(m).padStart(2, '0')} ${ap}`;
+}
+function slotMins(k) { return CONFIG.startHour * 60 + k * 30; }
+function slotLabel(k) { return fmtClock(slotMins(k)); }
+function windowLabel(start, len) {
+  const a = slotMins(start), b = slotMins(start + len);
+  const la = fmtClock(a), lb = fmtClock(b);
+  const apA = la.slice(-2), apB = lb.slice(-2);
+  return apA === apB ? `${la.slice(0, -3)}–${lb}` : `${la}–${lb}`;
+}
+function dayList(days) { return days.map(d => CONFIG.days[d]).join(' + '); }
+function notice(kind, html) { return `<div class="notice ${kind}">${html}</div>`; }
+function fmtTime(iso) { try { return new Date(iso).toLocaleString([], { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }); } catch (e) { return ''; } }
+
+const store = {
+  get(k, d) { try { const v = localStorage.getItem(k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } },
+  set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} },
+  del(k) { try { localStorage.removeItem(k); } catch (e) {} }
+};
+
+function gridToString(g) { return g.map(v => String(v)).join(''); }
+function parseGrid(s) {
+  if (typeof s !== 'string' || !/^[012]{60}$/.test(s)) return null;
+  return Array.from(s, ch => ch.charCodeAt(0) - 48);
+}
+
+// =====================================================================
+// Time zones: the grid is stored in Pacific time but drawn in the viewer's zone
+// =====================================================================
+const DTF_CACHE = {};
+function dtf(tz, opts) {
+  const key = tz + '|' + JSON.stringify(opts);
+  return DTF_CACHE[key] || (DTF_CACHE[key] = new Intl.DateTimeFormat('en-US', Object.assign({ timeZone: tz }, opts)));
+}
+function tzOffsetMs(tz, utcMs) {
+  const parts = dtf(tz, { hourCycle: 'h23', year: 'numeric', month: 'numeric', day: 'numeric', hour: 'numeric', minute: 'numeric', second: 'numeric' }).formatToParts(new Date(utcMs));
+  const p = {}; for (const x of parts) if (x.type !== 'literal') p[x.type] = parseInt(x.value, 10);
+  const asUtc = Date.UTC(p.year, p.month - 1, p.day, p.hour % 24, p.minute, p.second);
+  return asUtc - Math.floor(utcMs / 1000) * 1000;
+}
+let REF_MON = null;
+function refMonday() {
+  if (REF_MON) return REF_MON;
+  const now = new Date(), dow = now.getUTCDay(), add = ((8 - dow) % 7) || 7;
+  REF_MON = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() + add);
+  return REF_MON;
+}
+function slotUtc(d, k) {
+  const wall = refMonday() + d * 86400000 + slotMins(k) * 60000;
+  return wall - tzOffsetMs(CONFIG.pacificTz, wall);
+}
+const DOW = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+function localSlotInfo(d, k, tz) {
+  const t = new Date(slotUtc(d, k));
+  const p = {};
+  for (const x of dtf(tz, { hour: 'numeric', minute: '2-digit', weekday: 'short' }).formatToParts(t)) p[x.type] = x.value;
+  const pacDay = dtf(CONFIG.pacificTz, { weekday: 'short' }).format(t);
+  let shift = 0;
+  if (p.weekday !== pacDay) {
+    const diff = (DOW.indexOf(p.weekday) - DOW.indexOf(pacDay) + 7) % 7;
+    shift = diff === 1 ? 1 : -1;
+  }
+  const ap = (p.dayPeriod || '').toLowerCase();
+  const minute = parseInt(p.minute, 10) || 0;
+  return {
+    time: `${p.hour}:${p.minute} ${(p.dayPeriod || '').toUpperCase()}`.trim(),
+    compact: minute === 0 ? `${p.hour}${ap}` : `${p.hour}:${p.minute}${ap}`,
+    minute, weekday: p.weekday, shift
+  };
+}
+function detectTz() { try { return Intl.DateTimeFormat().resolvedOptions().timeZone || CONFIG.pacificTz; } catch (e) { return CONFIG.pacificTz; } }
+function validTz(tz) { try { dtf(tz, { hour: 'numeric' }); return true; } catch (e) { return false; } }
+function isSameAsPacific(tz) {
+  if (tz === CONFIG.pacificTz) return true;
+  try { return tzOffsetMs(tz, refMonday()) === tzOffsetMs(CONFIG.pacificTz, refMonday()); } catch (e) { return false; }
+}
+const COMMON_TZ = ['America/Los_Angeles', 'America/Vancouver', 'America/Denver', 'America/Phoenix', 'America/Chicago', 'America/New_York', 'America/Anchorage', 'Pacific/Honolulu', 'America/Halifax', 'America/Mexico_City', 'America/Sao_Paulo', 'Europe/London', 'Europe/Berlin', 'Europe/Helsinki', 'Asia/Tokyo', 'Asia/Seoul', 'Asia/Manila', 'Australia/Sydney', 'Australia/Perth', 'Pacific/Auckland'];
+function tzLabel(z) {
+  try {
+    const part = dtf(z, { timeZoneName: 'short' }).formatToParts(new Date()).find(p => p.type === 'timeZoneName');
+    return `${z.replace(/_/g, ' ')}${part ? ' (' + part.value + ')' : ''}`;
+  } catch (e) { return z; }
+}
+function tzOptionsHtml(cur) {
+  const set = new Set(COMMON_TZ); if (cur && validTz(cur)) set.add(cur);
+  let all = []; try { all = Intl.supportedValuesOf('timeZone'); } catch (e) { all = []; }
+  const common = Array.from(set).sort();
+  let html = common.map(z => `<option value="${esc(z)}"${z === cur ? ' selected' : ''}>${esc(tzLabel(z))}</option>`).join('');
+  const rest = all.filter(z => !set.has(z));
+  if (rest.length) html += `<optgroup label="All time zones">${rest.map(z => `<option value="${esc(z)}">${esc(z)}</option>`).join('')}</optgroup>`;
+  return html;
+}
+
+// =====================================================================
+// Backend: Apps Script when CONFIG.endpoint is set, otherwise a demo store in this browser
+// =====================================================================
+const DEMO = !CONFIG.endpoint;
+const api = DEMO ? demoApi() : realApi();
+
+function realApi() {
+  const url = CONFIG.endpoint;
+  async function get(params) {
+    params._ = Date.now();
+    const r = await fetch(url + '?' + new URLSearchParams(params).toString(), { method: 'GET', cache: 'no-store' });
+    return r.json();
+  }
+  async function post(body) {
+    // Plain-text body on purpose: it avoids a CORS preflight, which Apps Script cannot answer.
+    const r = await fetch(url, { method: 'POST', body: JSON.stringify(body) });
+    return r.json();
+  }
+  return {
+    ping: () => get({ mode: 'ping' }),
+    submit: (p) => post(Object.assign({ action: 'submit' }, p)),
+    fetchPublic: () => get({ mode: 'public' }),
+    fetchAdmin: (key) => post({ action: 'admin', key })
+  };
+}
+
+function demoApi() {
+  const KEY = 'rfi-poll-demo-data';
+  const load = () => store.get(KEY, []);
+  const save = rows => store.set(KEY, rows);
+  const later = v => new Promise(res => setTimeout(() => res(v), 200));
+  return {
+    ping: () => later({ ok: true, responses: load().length, passphraseRequired: false, adminKeySet: true, demo: true }),
+    submit: async (p) => {
+      const rows = load();
+      const nameKey = p.name.trim().toLowerCase().replace(/\s+/g, ' ');
+      const rec = Object.assign({}, p, { nameKey, updatedAt: new Date().toISOString() });
+      delete rec.passphrase; delete rec.action;
+      const i = rows.findIndex(r => r.nameKey === nameKey);
+      if (i >= 0) { rec.firstSeen = rows[i].firstSeen || rec.updatedAt; rows[i] = rec; }
+      else { rec.firstSeen = rec.updatedAt; rows.push(rec); }
+      save(rows);
+      return later({ ok: true, updated: i >= 0, name: p.name });
+    },
+    fetchPublic: () => later({
+      ok: true, scope: 'public', count: load().length, generatedAt: new Date().toISOString(),
+      responses: load().map(r => ({ interest: r.interest, reasons: r.reasons || [], faction: r.faction, block: r.block, grid: r.grid || '', updatedAt: r.updatedAt }))
+    }),
+    fetchAdmin: (key) => later(key === 'demo'
+      ? { ok: true, scope: 'admin', count: load().length, generatedAt: new Date().toISOString(), responses: load() }
+      : { ok: false, error: 'Wrong admin key. In demo mode the key is "demo".' }),
+    loadSample: () => save(sampleData()),
+    clear: () => save([])
+  };
+}
+
+// =====================================================================
+// Routing
+// =====================================================================
+function route() {
+  const h = (location.hash || '#poll').replace('#', '');
+  const page = h.indexOf('results') === 0 ? 'results' : 'poll';
+  $$('nav.tabs a').forEach(a => a.classList.toggle('active', a.dataset.page === page));
+  if (page === 'poll') renderPoll(); else renderResults(true);
+  window.scrollTo(0, 0);
+}
+window.addEventListener('hashchange', route);
+
+function drawBanner() {
+  const b = $('#banner');
+  if (!DEMO) { b.innerHTML = ''; return; }
+  b.innerHTML = notice('info', `<strong>Demo mode.</strong> No backend is connected yet, so answers stay in this browser only. The Results tab can load sample data, and the admin key is <code>demo</code>. Connect the Google Sheet by pasting its URL into <code>CONFIG.endpoint</code> (see SETUP.md).`);
+}
+function drawFoot(admin) {
+  $('#foot').innerHTML = `<span>${esc(CONFIG.guildName)} · ${esc(CONFIG.gameName)} raid poll</span>` +
+    `<span>${admin ? '<button type="button" data-action="admin-logout">Sign out of admin</button>' : '<button type="button" data-action="admin-login">Admin sign-in</button>'}</span>`;
+}
+
+// =====================================================================
+// The poll
+// =====================================================================
+let F = null, formNote = '', brush = 2, painting = null;
+
+function blankForm() {
+  return { name: '', discord: '', passphrase: '', interest: '', reasons: [], reasonText: '', faction: '', block: '', grid: new Array(60).fill(0), tz: detectTz(), comment: '' };
+}
+function loadForm() {
+  F = blankForm(); formNote = '';
+  const draft = store.get('rfi-poll-draft', null), last = store.get('rfi-poll-last', null);
+  const src = draft || last;
+  if (!src) return;
+  for (const k of Object.keys(F)) if (k in src && k !== 'grid' && k !== 'tz') F[k] = src[k];
+  if (src.tz && validTz(src.tz)) F.tz = src.tz;
+  const g = Array.isArray(src.grid) ? src.grid.map(Number) : parseGrid(src.grid);
+  if (g && g.length === 60) F.grid = g;
+  if (!Array.isArray(F.reasons)) F.reasons = [];
+  formNote = draft ? (last ? 'edit-draft' : 'draft') : 'edit';
+  F.lastSubmitted = last ? last.submittedAt : '';
+}
+function saveDraft() { if (F) store.set('rfi-poll-draft', Object.assign({}, F, { grid: gridToString(F.grid) })); }
+
+function choiceHtml(name, order, labels, cur, decorate) {
+  return order.map(k => `<label class="choice${cur === k ? ' selected' : ''}"><input type="radio" name="${name}" value="${k}"${cur === k ? ' checked' : ''}>${decorate ? decorate(k) : ''}<span class="choice-label">${esc(labels[k])}</span></label>`).join('');
+}
+
+function renderPoll() {
+  if (!F) loadForm();
+  let note = '';
+  if (formNote === 'edit') note = notice('info', `You're editing the answers you submitted ${F.lastSubmitted ? 'on ' + esc(fmtTime(F.lastSubmitted)) : 'earlier'}. Submitting again replaces them. <button type="button" class="btn small" data-action="start-fresh">Start fresh instead</button>`);
+  else if (formNote === 'draft') note = notice('info', `Picking up where you left off (unsent draft). <button type="button" class="btn small" data-action="start-fresh">Start fresh instead</button>`);
+  else if (formNote === 'edit-draft') note = notice('info', `You have unsent changes to your previous answers. <button type="button" class="btn small" data-action="start-fresh">Start fresh instead</button>`);
+
+  view.innerHTML = `
+  ${note}
+  <form id="pollForm" novalidate autocomplete="off">
+    <section class="card" data-q="name">
+      <h2 class="card-title">Who are you?</h2>
+      <p class="help">So we know who's voting. Only ${esc(CONFIG.guildShort)} leadership can see names; public results are anonymous.</p>
+      <div class="fields">
+        <label class="field"><span>Character or Discord name <b class="req">*</b></span><input name="name" maxlength="40" value="${esc(F.name)}" required></label>
+        <label class="field"><span>Discord handle <i class="opt">(optional)</i></span><input name="discord" maxlength="60" value="${esc(F.discord)}"></label>
+        <label class="field" id="passField" hidden><span>Guild passphrase</span><input name="passphrase" maxlength="60" value="${esc(F.passphrase)}"></label>
+      </div>
+    </section>
+
+    <section class="card" data-q="interest">
+      <h2 class="card-title">Are you playing ${esc(CONFIG.gameName)} with ${esc(CONFIG.guildShort)}?</h2>
+      <p class="help">Be honest. This is how we weigh everything else.</p>
+      <div class="choices">${choiceHtml('interest', L.interestOrder, L.interestLong, F.interest)}</div>
+      <div id="reasonsBox" class="subq"${F.interest && F.interest !== 'in' ? '' : ' hidden'}>
+        <h3>What's holding you back?</h3>
+        <p class="help">Pick everything that applies. This tells us what would change your mind.</p>
+        <div class="checks">${L.reasonOrder.map(k => `<label class="check"><input type="checkbox" name="reasons" value="${k}"${F.reasons.includes(k) ? ' checked' : ''}><span>${esc(L.reasons[k])}</span></label>`).join('')}</div>
+        <label class="field"><span>Tell us more <i class="opt">(optional, leadership only)</i></span><input name="reasonText" maxlength="300" value="${esc(F.reasonText)}" placeholder="e.g. I'd play if we go Horde, or if we raid earlier"></label>
+      </div>
+    </section>
+
+    <section class="card" data-q="faction">
+      <h2 class="card-title">Faction</h2>
+      <p class="help">Where do you stand on Horde versus Alliance? "Required" means you won't play the other side.</p>
+      <div class="choices scale">${choiceHtml('faction', L.factionOrder, L.faction, F.faction, k => `<span class="dot f-${k}"></span>`)}</div>
+    </section>
+
+    <section class="card" data-q="block">
+      <h2 class="card-title">Tuesday / Wednesday raid block</h2>
+      <p class="help">We raid 7:30–10:30 PM Pacific today and are considering moving an hour earlier. If we stay on Tue/Wed, which block works for you?</p>
+      <div class="choices">${choiceHtml('block', L.blockOrder, L.blockLong, F.block)}</div>
+    </section>
+
+    <section class="card" data-q="grid">
+      <h2 class="card-title">When could you raid?</h2>
+      <p class="help">Paint the times you could raid on <strong>any</strong> weekday, not just Tue/Wed. Raids are scheduled in Pacific time; the grid is shown in your time zone.</p>
+      <div class="tzrow"><label>Your time zone <select name="tz">${tzOptionsHtml(F.tz)}</select></label></div>
+      <div class="brushes" role="group" aria-label="Paint mode">
+        <button type="button" class="brush s2${brush === 2 ? ' active' : ''}" data-v="2">Available</button>
+        <button type="button" class="brush s1${brush === 1 ? ' active' : ''}" data-v="1">If needed</button>
+        <button type="button" class="brush s0${brush === 0 ? ' active' : ''}" data-v="0">Not available</button>
+        <span class="help inline">Click or drag across the grid to paint. Click a painted cell with the same brush to clear it.</span>
+      </div>
+      <div class="grid-wrap" id="gridWrap"></div>
+      <p class="help" id="gridSummary"></p>
+    </section>
+
+    <section class="card" data-q="comment">
+      <h2 class="card-title">Anything else?</h2>
+      <p class="help">Anything you want leadership to know. Only admins see comments.</p>
+      <textarea name="comment" rows="3" maxlength="1000">${esc(F.comment)}</textarea>
+    </section>
+
+    <div class="submit-row">
+      <button type="submit" class="btn btn-primary" id="submitBtn">Submit my answers</button>
+      <span class="help">Submitting again with the same name replaces your previous answers.</span>
+    </div>
+    <div id="formMsg"></div>
+  </form>`;
+  drawFoot(false);
+  wirePoll();
+}
+
+function wirePoll() {
+  const form = $('#pollForm');
+  api.ping().then(p => {
+    if (!p || !$('#pollForm')) return;
+    if (p.passphraseRequired) $('#passField').hidden = false;
+    if (p.closed) {
+      const b = $('#submitBtn'); b.disabled = true; b.textContent = 'Poll closed';
+      $('#formMsg').innerHTML = notice('info', 'This poll is closed and no longer accepts answers. Thanks to everyone who voted; the Results tab still works.');
+    }
+  }).catch(() => { const pf = $('#passField'); if (pf) pf.hidden = false; });
+
+  form.addEventListener('change', e => {
+    const t = e.target;
+    if (t.name === 'interest') { F.interest = t.value; $('#reasonsBox').hidden = (t.value === 'in' || !t.value); }
+    else if (t.name === 'faction') F.faction = t.value;
+    else if (t.name === 'block') F.block = t.value;
+    else if (t.name === 'reasons') F.reasons = $$('input[name=reasons]:checked', form).map(x => x.value);
+    else if (t.name === 'tz') { F.tz = t.value; drawGrid(); }
+    if (t.type === 'radio') $$('.choice', t.closest('.choices')).forEach(c => c.classList.toggle('selected', c.querySelector('input').checked));
+    saveDraft();
+  });
+  form.addEventListener('input', e => {
+    const t = e.target;
+    if (['name', 'discord', 'passphrase', 'reasonText', 'comment'].includes(t.name)) { F[t.name] = t.value; saveDraft(); }
+  });
+  $$('.brush', form).forEach(b => b.addEventListener('click', () => {
+    brush = +b.dataset.v;
+    $$('.brush', form).forEach(x => x.classList.toggle('active', x === b));
+  }));
+  form.addEventListener('submit', onSubmit);
+  drawGrid();
+}
+
+function drawGrid() {
+  const wrap = $('#gridWrap'); if (!wrap) return;
+  const tz = validTz(F.tz) ? F.tz : CONFIG.pacificTz;
+  const same = isSameAsPacific(tz);
+  const info = [];
+  for (let d = 0; d < 5; d++) { info[d] = []; for (let k = 0; k < CONFIG.slots; k++) info[d][k] = localSlotInfo(d, k, tz); }
+
+  let html = '<table class="grid" aria-label="Weekly availability"><thead><tr><th class="day"></th>';
+  for (let k = 0; k < CONFIG.slots; k++) html += `<th class="time">${k % 2 === 0 ? esc(info[0][k].compact) : ''}</th>`;
+  html += '<th></th></tr></thead><tbody>';
+  for (let d = 0; d < 5; d++) {
+    const shifts = info[d].map(i => i.shift);
+    let sub = '';
+    if (!same && shifts.some(s => s !== 0)) {
+      const wds = Array.from(new Set(info[d].map(i => i.weekday)));
+      sub = `<small>${esc(wds.join('–'))} for you</small>`;
+    }
+    html += `<tr><th class="day" scope="row">${CONFIG.days[d]}${sub}</th>`;
+    for (let k = 0; k < CONFIG.slots; k++) {
+      const i = d * CONFIG.slots + k, v = F.grid[i];
+      const title = `${CONFIG.days[d]} ${info[d][k].time}${same ? '' : ' (' + slotLabel(k) + ' Pacific)'}`;
+      html += `<td class="cell s${v}" data-i="${i}" tabindex="0" role="button" aria-label="${esc(title)}" title="${esc(title)}">${GLYPH[v]}</td>`;
+    }
+    html += `<td class="rowbtns"><button type="button" class="mini" data-row="${d}" data-set="2">All</button><button type="button" class="mini" data-row="${d}" data-set="0">None</button></td></tr>`;
+  }
+  html += '</tbody></table>';
+  wrap.innerHTML = html;
+  updateGridSummary();
+  if (!wrap.dataset.wired) { wireGridEvents(wrap); wrap.dataset.wired = '1'; }
+}
+
+function applyRect(d1, k1) {
+  // Paint the rectangle between the anchor cell and the current cell; cells that
+  // fall back outside the rectangle return to what they were before the drag.
+  const dA = Math.min(painting.d0, d1), dB = Math.max(painting.d0, d1);
+  const kA = Math.min(painting.k0, k1), kB = Math.max(painting.k0, k1);
+  for (let i = 0; i < 60; i++) {
+    const d = Math.floor(i / CONFIG.slots), k = i % CONFIG.slots;
+    const inRect = d >= dA && d <= dB && k >= kA && k <= kB;
+    const v = inRect ? painting.v : painting.snap[i];
+    if (F.grid[i] !== v) setCell(i, v);
+  }
+}
+function wireGridEvents(wrap) {
+  wrap.addEventListener('pointerdown', e => {
+    const c = e.target.closest('td.cell'); if (!c) return;
+    e.preventDefault();
+    const i = +c.dataset.i;
+    painting = { v: F.grid[i] === brush ? 0 : brush, d0: Math.floor(i / CONFIG.slots), k0: i % CONFIG.slots, snap: F.grid.slice() };
+    applyRect(painting.d0, painting.k0);
+  });
+  wrap.addEventListener('pointermove', e => {
+    if (painting === null) return;
+    const el = document.elementFromPoint(e.clientX, e.clientY);
+    const c = el && el.closest ? el.closest('td.cell') : null;
+    if (c) { const i = +c.dataset.i; applyRect(Math.floor(i / CONFIG.slots), i % CONFIG.slots); }
+  });
+  const stop = () => { if (painting !== null) { painting = null; saveDraft(); } };
+  window.addEventListener('pointerup', stop);
+  window.addEventListener('pointercancel', stop);
+  wrap.addEventListener('keydown', e => {
+    const c = e.target.closest('td.cell'); if (!c) return;
+    if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); const i = +c.dataset.i; setCell(i, NEXT[F.grid[i]]); saveDraft(); }
+  });
+  wrap.addEventListener('click', e => {
+    const b = e.target.closest('button.mini'); if (!b) return;
+    const d = +b.dataset.row, v = +b.dataset.set;
+    for (let k = 0; k < CONFIG.slots; k++) setCell(d * CONFIG.slots + k, v);
+    saveDraft();
+  });
+}
+function setCell(i, v) {
+  F.grid[i] = v;
+  const c = $(`#gridWrap td.cell[data-i="${i}"]`);
+  if (c) { c.className = `cell s${v}`; c.textContent = GLYPH[v]; }
+  updateGridSummary();
+}
+function updateGridSummary() {
+  const el = $('#gridSummary'); if (!el) return;
+  const a = F.grid.filter(v => v === 2).length, n = F.grid.filter(v => v === 1).length;
+  el.innerHTML = a + n === 0
+    ? 'Nothing painted yet. If you truly can\'t raid on weekdays, leave it empty.'
+    : `You've marked <strong>${a / 2} h</strong> available and <strong>${n / 2} h</strong> if needed across the week.`;
+}
+
+async function onSubmit(e) {
+  e.preventDefault();
+  const form = e.target, msg = $('#formMsg');
+  F.name = form.name.value; F.discord = form.discord.value; F.passphrase = form.passphrase.value;
+  F.reasonText = form.reasonText.value; F.comment = form.comment.value;
+
+  const errs = [];
+  if (!F.name.trim()) errs.push(['name', 'Please enter your name.']);
+  if (!F.interest) errs.push(['interest', 'Pick how likely you are to play with us.']);
+  if (!F.faction) errs.push(['faction', 'Pick a faction preference.']);
+  if (!F.block) errs.push(['block', 'Pick a Tue/Wed block preference.']);
+  $$('.card', form).forEach(c => c.classList.remove('error'));
+  if (errs.length) {
+    errs.forEach(([q]) => $(`.card[data-q="${q}"]`).classList.add('error'));
+    msg.innerHTML = notice('error', errs.map(x => esc(x[1])).join(' '));
+    $(`.card[data-q="${errs[0][0]}"]`).scrollIntoView({ behavior: 'smooth', block: 'center' });
+    return;
+  }
+  const marked = F.grid.some(v => v > 0);
+  if (!marked && F.interest !== 'out' && !confirm("You haven't marked any availability. Submit anyway?")) return;
+
+  const payload = {
+    name: F.name.trim(), discord: F.discord.trim(), passphrase: F.passphrase,
+    interest: F.interest,
+    reasons: F.interest === 'in' ? [] : F.reasons,
+    reasonText: F.interest === 'in' ? '' : F.reasonText.trim(),
+    faction: F.faction, block: F.block,
+    grid: (marked || F.interest !== 'out') ? gridToString(F.grid) : '',
+    tz: F.tz, comment: F.comment.trim()
+  };
+  const btn = $('#submitBtn'); btn.disabled = true; btn.textContent = 'Sending…'; msg.innerHTML = '';
+  try {
+    const res = await api.submit(payload);
+    if (!res || !res.ok) throw new Error((res && res.error) || 'The server did not accept the answers.');
+    store.set('rfi-poll-last', Object.assign({}, payload, { submittedAt: new Date().toISOString() }));
+    store.del('rfi-poll-draft');
+    F = null; formNote = '';
+    view.innerHTML = `<section class="card center">
+      <h2 class="card-title">Thanks, ${esc(payload.name)}!</h2>
+      <p>${res.updated ? 'Your previous answers were replaced.' : 'Your answers are saved.'}${DEMO ? ' (Demo mode: they live only in this browser.)' : ''}</p>
+      <p><a class="btn btn-primary" href="#results">See the results</a> <button type="button" class="btn" data-action="edit">Edit my answers</button></p>
+    </section>`;
+    window.scrollTo(0, 0);
+  } catch (err) {
+    msg.innerHTML = notice('error', `Couldn't save your answers: ${esc(err.message || err)}${DEMO ? '' : ' Check your connection and try again.'}`);
+    btn.disabled = false; btn.textContent = 'Submit my answers';
+  }
+}
+
+// =====================================================================
+// Results: state and math
+// =====================================================================
+const R = {
+  rows: [], raw: null, scope: 'public', loading: false, error: '',
+  include: new Set(CONFIG.defaultInclude), weighted: false,
+  sc: { faction: 'horde', days: [1, 2], start: CONFIG.candidates.early.start, len: CONFIG.windowLen },
+  heatFactionOnly: true, heatSel: null, openBuckets: new Set(),
+  adminKey: store.get('rfi-poll-admin', ''), generatedAt: ''
+};
+
+function prepRows(responses) {
+  return responses.map((r, idx) => Object.assign({}, r, {
+    idx,
+    g: parseGrid(r.grid || ''),
+    reasons: Array.isArray(r.reasons) ? r.reasons : String(r.reasons || '').split(',').filter(Boolean)
+  }));
+}
+function weightOf(r) { return R.include.has(r.interest) ? (R.weighted ? (CONFIG.weights[r.interest] || 0) : 1) : 0; }
+function factionOk(r, F_) { return !(F_ === 'horde' && r.faction === 'allyReq') && !(F_ === 'ally' && r.faction === 'hordeReq'); }
+function factionUnhappy(r, F_) { return (F_ === 'horde' && r.faction === 'allyPref') || (F_ === 'ally' && r.faction === 'hordePref'); }
+function dayAvail(g, d, start, len) {
+  let m = 2;
+  for (let k = start; k < start + len; k++) { const v = g[d * CONFIG.slots + k]; if (v < m) m = v; if (m === 0) break; }
+  return m;
+}
+function candidateOf(sc) {
+  if (sc.days.length === 2 && sc.days[0] === 1 && sc.days[1] === 2 && sc.len === CONFIG.windowLen) {
+    if (sc.start === CONFIG.candidates.early.start) return 'early';
+    if (sc.start === CONFIG.candidates.late.start) return 'late';
+  }
+  return null;
+}
+function blockUnhappy(r, sc) {
+  const cand = candidateOf(sc); if (!cand) return '';
+  if (r.block === 'neither') return 'said neither Tue/Wed block works';
+  if (r.block !== 'either' && r.block !== cand) return `prefers the ${L.block[r.block]} block`;
+  return '';
+}
+function classify(r, sc) {
+  const out = { r, bucket: '', unhappy: [], failedDays: [], ifDays: [] };
+  if (!factionOk(r, sc.faction)) { out.bucket = 'lostFaction'; return out; }
+  if (!r.g) { out.bucket = 'noGrid'; return out; }
+  let status = 2;
+  for (const d of sc.days) {
+    const a = dayAvail(r.g, d, sc.start, sc.len);
+    if (a === 0) out.failedDays.push(d); else if (a === 1) out.ifDays.push(d);
+    if (a < status) status = a;
+  }
+  if (status === 0) { out.bucket = 'lostTime'; return out; }
+  out.bucket = status === 1 ? 'ifNeeded' : 'in';
+  if (factionUnhappy(r, sc.faction)) out.unhappy.push(sc.faction === 'horde' ? 'prefers Alliance' : 'prefers Horde');
+  const bu = blockUnhappy(r, sc); if (bu) out.unhappy.push(bu);
+  return out;
+}
+function flipCheck(r, sc) {
+  const conds = [];
+  if (r.reasons.includes('faction')) conds.push({ name: 'faction', ok: factionOk(r, sc.faction) && !factionUnhappy(r, sc.faction) });
+  if (r.reasons.includes('time')) {
+    let ok = false;
+    if (r.g) {
+      let s = 2;
+      for (const d of sc.days) { const a = dayAvail(r.g, d, sc.start, sc.len); if (a < s) s = a; }
+      ok = s >= 1 && !blockUnhappy(r, sc);
+    }
+    conds.push({ name: 'time', ok });
+  }
+  if (!conds.length) return null;
+  return { r, met: conds.every(c => c.ok), conds, others: r.reasons.filter(x => x !== 'faction' && x !== 'time') };
+}
+function scenarioSummary(rows, sc) {
+  const buckets = { in: [], ifNeeded: [], lostTime: [], lostFaction: [], noGrid: [] };
+  const unhappy = [];
+  for (const r of rows) {
+    const w = weightOf(r); if (!w) continue;
+    const c = classify(r, sc); c.w = w;
+    buckets[c.bucket].push(c);
+    if (c.unhappy.length && (c.bucket === 'in' || c.bucket === 'ifNeeded')) unhappy.push(c);
+  }
+  const flips = { yes: [], no: [] };
+  for (const r of rows) {
+    if (weightOf(r) || r.interest === 'in') continue;
+    const f = flipCheck(r, sc); if (!f) continue;
+    (f.met ? flips.yes : flips.no).push(f);
+  }
+  const sum = arr => arr.reduce((a, c) => a + c.w, 0);
+  const counts = {};
+  for (const k of Object.keys(buckets)) counts[k] = sum(buckets[k]);
+  counts.unhappy = sum(unhappy);
+  const total = Object.keys(buckets).reduce((a, k) => a + counts[k], 0);
+  return { buckets, unhappy, flips, counts, total };
+}
+function matrixData(rows, sc) {
+  const starts = []; for (let s = 0; s + sc.len <= CONFIG.slots; s++) starts.push(s);
+  const cells = {};
+  for (const F_ of ['horde', 'ally']) for (const s of starts) cells[F_ + s] = scenarioSummary(rows, Object.assign({}, sc, { faction: F_, start: s })).counts;
+  return { starts, cells };
+}
+function heatRows(rows, sc) { return rows.filter(r => weightOf(r) > 0 && r.g && (!R.heatFactionOnly || factionOk(r, sc.faction))); }
+function heatData(rows, sc) {
+  const pop = heatRows(rows, sc);
+  const total = pop.reduce((a, r) => a + weightOf(r), 0);
+  const avail = new Array(60).fill(0), ifn = new Array(60).fill(0);
+  for (const r of pop) {
+    const w = weightOf(r);
+    for (let i = 0; i < 60; i++) { if (r.g[i] === 2) avail[i] += w; else if (r.g[i] === 1) ifn[i] += w; }
+  }
+  return { pop, total, avail, ifn };
+}
+function bestWindows(rows, sc) {
+  const pop = heatRows(rows, sc), len = sc.len, singles = [], pairs = [];
+  const score = (days, s) => {
+    let strict = 0, lenient = 0;
+    for (const r of pop) {
+      let a = 2; for (const d of days) { const v = dayAvail(r.g, d, s, len); if (v < a) a = v; }
+      const w = weightOf(r);
+      if (a === 2) strict += w; if (a >= 1) lenient += w;
+    }
+    return { days, start: s, strict, lenient };
+  };
+  for (let d = 0; d < 5; d++) for (let s = 0; s + len <= CONFIG.slots; s++) singles.push(score([d], s));
+  for (let d1 = 0; d1 < 5; d1++) for (let d2 = d1 + 1; d2 < 5; d2++) for (let s = 0; s + len <= CONFIG.slots; s++) pairs.push(score([d1, d2], s));
+  const by = (a, b) => b.strict - a.strict || b.lenient - a.lenient || a.start - b.start;
+  singles.sort(by); pairs.sort(by);
+  return { singles: singles.slice(0, 8), pairs: pairs.slice(0, 6), total: pop.reduce((a, r) => a + weightOf(r), 0) };
+}
+function factionCounts(rows) {
+  const c = { hordeReq: 0, hordePref: 0, either: 0, allyPref: 0, allyReq: 0 };
+  for (const r of rows) { const w = weightOf(r); if (w && c[r.faction] != null) c[r.faction] += w; }
+  return c;
+}
+function xtab(rows) {
+  const t = {};
+  for (const f of L.factionOrder) { t[f] = {}; for (const b of L.blockOrder) t[f][b] = 0; }
+  for (const r of rows) { const w = weightOf(r); if (w && t[r.faction] && t[r.faction][r.block] != null) t[r.faction][r.block] += w; }
+  return t;
+}
+function seq(t) {
+  const stops = [[30, 36, 51], [22, 63, 58], [23, 102, 80], [31, 154, 114], [79, 211, 159]];
+  t = Math.max(0, Math.min(1, t || 0));
+  const x = t * (stops.length - 1), i = Math.min(Math.floor(x), stops.length - 2), f = x - i;
+  const c = stops[i].map((v, j) => Math.round(v + (stops[i + 1][j] - v) * f));
+  return `rgb(${c.join(',')})`;
+}
+function seqText(t) { return t >= 0.62 ? '#0b1a14' : '#f3f4f6'; }
+function rangesOf(g, d, val) {
+  const out = []; let s = -1;
+  for (let k = 0; k <= CONFIG.slots; k++) {
+    const on = k < CONFIG.slots && g[d * CONFIG.slots + k] === val;
+    if (on && s < 0) s = k;
+    if (!on && s >= 0) { out.push(windowLabel(s, k - s)); s = -1; }
+  }
+  return out;
+}
+function daySummary(g, d) {
+  if (!g) return '';
+  const a = rangesOf(g, d, 2), n = rangesOf(g, d, 1);
+  if (!a.length && !n.length) return 'no';
+  return a.join(', ') + (n.length ? ` (if needed: ${n.join(', ')})` : '');
+}
+function miniGrid(g) {
+  if (!g) return '<span class="muted">none</span>';
+  return `<span class="mg" title="Mon–Fri, 5 PM to 11 PM Pacific">${g.map(v => `<i class="s${v}"></i>`).join('')}</span>`;
+}
+function who(r) { return esc(r.name || 'Anonymous'); }
+
+// =====================================================================
+// Results: loading & rendering
+// =====================================================================
+async function renderResults(fetchFresh) {
+  if (fetchFresh || !R.raw) await loadResults();
+  drawResults();
+}
+async function loadResults() {
+  R.loading = true; R.error = '';
+  if (!R.raw) view.innerHTML = '<div class="card center">Loading responses…</div>';
+  else view.classList.add('loading');
+  try {
+    let res = null;
+    if (R.adminKey) {
+      res = await api.fetchAdmin(R.adminKey);
+      if (!res || !res.ok) { store.del('rfi-poll-admin'); R.adminKey = ''; res = null; }
+    }
+    if (!res) res = await api.fetchPublic();
+    if (!res || !res.ok) throw new Error((res && res.error) || 'Bad response from the server.');
+    R.raw = res; R.scope = res.scope || 'public';
+    R.rows = prepRows(res.responses || []);
+    R.generatedAt = res.generatedAt || new Date().toISOString();
+  } catch (err) {
+    R.error = err.message || String(err);
+  }
+  R.loading = false;
+  view.classList.remove('loading');
+}
+
+function drawResults() {
+  const admin = R.scope === 'admin';
+  drawFoot(admin);
+  if (R.error && !R.raw) {
+    view.innerHTML = `<div class="card">${notice('error', `Couldn't load results: ${esc(R.error)}`)}<button type="button" class="btn" data-action="reload">Try again</button></div>`;
+    return;
+  }
+  const rows = R.rows;
+  const counted = rows.filter(r => weightOf(r) > 0);
+  const countedW = counted.reduce((a, r) => a + weightOf(r), 0);
+  const parts = [adminBar(admin), demoControls(), filterBar(rows, countedW)];
+  if (!rows.length) {
+    parts.push(`<div class="card center"><p>No responses yet.</p>${DEMO ? '<p class="help">Use "Load sample data" above to see what the dashboard looks like.</p>' : ''}</div>`);
+  } else {
+    parts.push(overview(rows, countedW), factionSection(rows, countedW), boardSection(rows, admin), heatSection(rows, admin), reasonsSection(rows));
+    if (admin) parts.push(commentsSection(rows), tableSection(rows));
+  }
+  parts.push(`<p class="help center">Updated ${esc(fmtTime(R.generatedAt))} · <button type="button" class="btn small" data-action="reload">Refresh</button></p>`);
+  view.innerHTML = parts.join('');
+}
+
+function adminBar(admin) {
+  if (!admin) return '';
+  return `<div class="adminbar"><span><strong>Admin view.</strong> Names, comments and free text are visible to you only.</span>
+    <span class="actions"><button type="button" class="btn small" data-action="csv">Export CSV</button><button type="button" class="btn small" data-action="admin-logout">Sign out</button></span></div>`;
+}
+function demoControls() {
+  if (!DEMO) return '';
+  return `<div class="notice info"><strong>Demo data.</strong> <button type="button" class="btn small" data-action="demo-sample">Load sample data</button><button type="button" class="btn small" data-action="demo-clear">Clear demo data</button></div>`;
+}
+function filterBar(rows, countedW) {
+  const counts = {}; L.interestOrder.forEach(k => counts[k] = rows.filter(r => r.interest === k).length);
+  return `<div class="filterbar card">
+    <div class="filter-row"><span class="filter-title">Who counts</span>
+      ${L.interestOrder.map(k => `<button type="button" class="chip${R.include.has(k) ? ' on' : ''}" data-action="chip" data-k="${k}" aria-pressed="${R.include.has(k)}">${esc(L.interest[k])} <span class="chip-n">${counts[k]}</span></button>`).join('')}
+      <button type="button" class="chip toggle${R.weighted ? ' on' : ''}" data-action="weighted" aria-pressed="${R.weighted}">Expected headcount <span class="chip-n">weighted</span></button>
+    </div>
+    <p class="help" style="margin:10px 0 0">Counting <strong>${fmtN(countedW)}</strong> of ${rows.length} responses${R.weighted ? ' (Likely ×0.75, Undecided ×0.5, Unlikely ×0.25)' : ''}. Every chart below follows this bar.</p>
+  </div>`;
+}
+function barList(items, max) {
+  const m = max || Math.max(1, ...items.map(i => i.value));
+  return `<div class="bars">${items.map(i => `<div class="bar-row"><div class="bar-label" title="${esc(i.label)}">${esc(i.label)}</div><div class="bar-track"><div class="bar-fill" style="width:${Math.min(100, i.value / m * 100)}%${i.color ? ';background:' + i.color : ''}"></div></div><div class="bar-val">${fmtN(i.value)}${i.sub ? ` <span class="muted">${esc(i.sub)}</span>` : ''}</div></div>`).join('')}</div>`;
+}
+function overview(rows, countedW) {
+  const n = k => rows.filter(r => r.interest === k).length;
+  const either = rows.reduce((a, r) => a + (r.faction === 'either' ? weightOf(r) : 0), 0);
+  const items = L.interestOrder.map(k => ({ label: L.interest[k], value: n(k) }));
+  return `<section class="card">
+    <div class="stats">
+      <div class="stat"><div class="stat-val">${rows.length}</div><div class="stat-label">responses</div></div>
+      <div class="stat"><div class="stat-val">${n('in')}</div><div class="stat-label">count me in</div></div>
+      <div class="stat"><div class="stat-val">${fmtN(countedW)}</div><div class="stat-label">counted right now</div></div>
+      <div class="stat"><div class="stat-val">${fmtN(either)}</div><div class="stat-label">counted, fine with either faction</div></div>
+    </div>
+    <h2 class="card-title">Who's playing</h2>
+    <p class="help">All responses, regardless of the filter above.</p>
+    ${barList(items, rows.length)}
+  </section>`;
+}
+function factionSection(rows, countedW) {
+  const c = factionCounts(rows);
+  const total = L.factionOrder.reduce((a, k) => a + c[k], 0) || 1;
+  const segs = L.factionOrder.map(k => ({ k, v: c[k], pct: c[k] / total * 100 }));
+  const horde = { lose: c.allyReq, unhappy: c.allyPref, fine: c.hordeReq + c.hordePref + c.either };
+  const ally = { lose: c.hordeReq, unhappy: c.hordePref, fine: c.allyReq + c.allyPref + c.either };
+  const t = xtab(rows);
+  return `<section class="card">
+    <h2 class="card-title">Faction</h2>
+    <p class="help">Counted people only, left to right from Horde-required to Alliance-required.</p>
+    <div class="divbar">${segs.map(s => `<div class="seg f-${s.k}" style="width:${s.pct}%" title="${esc(L.faction[s.k])}: ${fmtN(s.v)}">${s.pct >= 9 ? fmtN(s.v) : ''}</div>`).join('')}</div>
+    <div class="legend">${segs.map(s => `<span><i class="sw f-${s.k}"></i>${esc(L.faction[s.k])} <b>${fmtN(s.v)}</b></span>`).join('')}</div>
+    <div class="two-col" style="margin-top:16px">
+      <div class="cost horde"><h3>If we go Horde</h3><ul>
+        <li><b>${fmtN(horde.lose)}</b> lost outright (Alliance required)</li>
+        <li><b>${fmtN(horde.unhappy)}</b> would rather be Alliance but will play</li>
+        <li><b>${fmtN(horde.fine)}</b> happy or fine with it</li></ul></div>
+      <div class="cost ally"><h3>If we go Alliance</h3><ul>
+        <li><b>${fmtN(ally.lose)}</b> lost outright (Horde required)</li>
+        <li><b>${fmtN(ally.unhappy)}</b> would rather be Horde but will play</li>
+        <li><b>${fmtN(ally.fine)}</b> happy or fine with it</li></ul></div>
+    </div>
+    <h3>Faction × Tue/Wed block preference</h3>
+    <p class="help">How the two answers line up for the people being counted.</p>
+    <div class="tablewrap"><table class="simple"><thead><tr><th></th>${L.blockOrder.map(b => `<th class="num">${esc(L.block[b])}</th>`).join('')}<th class="num">Total</th></tr></thead>
+    <tbody>${L.factionOrder.map(f => { const rowT = L.blockOrder.reduce((a, b) => a + t[f][b], 0); return `<tr><th><i class="sw f-${f}" style="display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:6px"></i>${esc(L.faction[f])}</th>${L.blockOrder.map(b => `<td class="num">${t[f][b] ? fmtN(t[f][b]) : '<span class="muted">·</span>'}</td>`).join('')}<td class="num"><b>${fmtN(rowT)}</b></td></tr>`; }).join('')}
+    <tr><th>Total</th>${L.blockOrder.map(b => `<td class="num"><b>${fmtN(L.factionOrder.reduce((a, f) => a + t[f][b], 0))}</b></td>`).join('')}<td class="num"><b>${fmtN(countedW)}</b></td></tr></tbody></table></div>
+  </section>`;
+}
+
+function boardSection(rows, admin) {
+  const sc = R.sc;
+  const S = scenarioSummary(rows, sc);
+  const M = matrixData(rows, sc);
+  const cand = candidateOf(sc);
+  const total = S.total || 1;
+  const starts = M.starts;
+  const fname = L.factionName[sc.faction];
+  const candNote = s => {
+    if (!(sc.days.length === 2 && sc.days[0] === 1 && sc.days[1] === 2 && sc.len === CONFIG.windowLen)) return '';
+    if (s === CONFIG.candidates.early.start) return ' (proposed)';
+    if (s === CONFIG.candidates.late.start) return ' (current)';
+    return '';
+  };
+  const defs = [
+    ['in', 'In', 'var(--good)', '✓', `Will play ${fname} and is available every chosen night`],
+    ['ifNeeded', 'In if needed', 'var(--warn)', '~', 'Available, but leaning on at least one "if needed" slot'],
+    ['lostTime', 'Lost to time', 'var(--lost)', '⏱', `Would play ${fname} but can't make at least one chosen night`],
+    ['lostFaction', 'Lost to faction', 'var(--lost)', '⚔', `${sc.faction === 'horde' ? 'Alliance' : 'Horde'} is required for them`],
+    ['noGrid', 'No availability given', 'var(--line-2)', '?', 'Didn\'t fill in the grid']
+  ];
+  const memberLine = c => {
+    const r = c.r; const bits = [];
+    if (c.failedDays.length) bits.push(`can't make ${c.failedDays.map(d => CONFIG.days[d]).join(', ')}`);
+    if (c.ifDays.length) bits.push(`"if needed" on ${c.ifDays.map(d => CONFIG.days[d]).join(', ')}`);
+    if (c.unhappy.length) bits.push(c.unhappy.join('; '));
+    if (c.bucket === 'lostFaction') bits.push(L.faction[r.faction]);
+    const flags = [];
+    if (r.reasons.includes('faction')) flags.push('depends on faction');
+    if (r.reasons.includes('time')) flags.push('depends on time');
+    return `<li><b>${who(r)}</b> <span class="muted">${esc(L.interest[r.interest])}</span>${bits.length ? ' – ' + esc(bits.join('; ')) : ''}${flags.map(f => `<span class="flag">${esc(f)}</span>`).join('')}</li>`;
+  };
+  const members = (key, list) => {
+    if (!admin || !list.length) return '';
+    const open = R.openBuckets.has(key) ? ' open' : '';
+    return `<details class="members" data-bucket="${key}"${open}><summary>Show ${list.length} ${list.length === 1 ? 'person' : 'people'}</summary><ul>${list.map(memberLine).join('')}</ul></details>`;
+  };
+  const bucketHtml = defs.map(([key, label, color, icon, desc]) => {
+    const n = S.counts[key];
+    return `<div class="bucket"><div class="ic" style="background:${color}">${icon}</div><div class="bl">${esc(label)}<small>${esc(desc)}</small></div><div class="bar-track"><div class="bar-fill" style="width:${n / total * 100}%;background:${color}"></div></div><div class="n">${fmtN(n)}</div></div>${members(key, S.buckets[key])}`;
+  }).join('');
+
+  const flipLine = f => {
+    const r = f.r;
+    const cond = f.conds.map(c => `${c.name}: ${c.ok ? 'ok' : 'no'}`).join(', ');
+    const more = f.others.length ? `; also depends on ${f.others.map(o => L.reasons[o].toLowerCase()).join(', ')}` : '';
+    return `<li><b>${who(r)}</b> <span class="muted">${esc(L.interest[r.interest])}</span> – ${esc(cond)}${esc(more)}${r.reasonText && admin ? ` <span class="muted">“${esc(r.reasonText)}”</span>` : ''}</li>`;
+  };
+  const flipMembers = (key, list) => {
+    if (!admin || !list.length) return '';
+    const open = R.openBuckets.has(key) ? ' open' : '';
+    return `<details class="members" data-bucket="${key}"${open}><summary>Show ${list.length} ${list.length === 1 ? 'person' : 'people'}</summary><ul>${list.map(flipLine).join('')}</ul></details>`;
+  };
+  const flipsHtml = `
+    <div class="bucket"><div class="ic" style="background:var(--violet)">+</div><div class="bl">Could flip to yes<small>Not counted right now, but said their decision depends on faction or time, and this scenario gives them what they asked for</small></div><div class="bar-track"><div class="bar-fill" style="width:${Math.min(100, S.flips.yes.length / total * 100)}%;background:var(--violet)"></div></div><div class="n">${S.flips.yes.length}</div></div>${flipMembers('flipYes', S.flips.yes)}
+    <div class="bucket"><div class="ic" style="background:var(--card-3);color:var(--text-2)">−</div><div class="bl">Would likely stay out<small>Not counted, conditional on faction or time, and this scenario doesn't meet their condition</small></div><div class="bar-track"><div class="bar-fill" style="width:${Math.min(100, S.flips.no.length / total * 100)}%;background:var(--lost)"></div></div><div class="n">${S.flips.no.length}</div></div>${flipMembers('flipNo', S.flips.no)}`;
+
+  const matrix = `<div class="tablewrap"><table class="matrix"><thead><tr><th class="rowh">${esc(dayList(sc.days))}</th>${starts.map(s => `<th class="${candNote(s) ? 'cand' : ''}">${esc(windowLabel(s, sc.len))}${candNote(s) ? `<br><small>${esc(candNote(s).trim())}</small>` : ''}</th>`).join('')}</tr></thead><tbody>${['horde', 'ally'].map(F_ => `<tr><th class="rowh" style="color:var(--${F_})">${L.factionName[F_]}</th>${starts.map(s => {
+    const c = M.cells[F_ + s]; const active = F_ === sc.faction && s === sc.start; const tt = c.in / total;
+    return `<td><button type="button" class="mcell${active ? ' active' : ''}${candNote(s) ? ' cand' : ''}" data-action="cell" data-f="${F_}" data-s="${s}" style="background:${seq(tt)};color:${seqText(tt)}" title="${L.factionName[F_]}, ${esc(dayList(sc.days))} ${esc(windowLabel(s, sc.len))}: ${fmtN(c.in)} in, ${fmtN(c.ifNeeded)} if needed, ${fmtN(c.lostTime)} lost to time, ${fmtN(c.lostFaction)} lost to faction"><b>${fmtN(c.in)}</b><small>+${fmtN(c.ifNeeded)}</small></button></td>`;
+  }).join('')}</tr>`).join('')}</tbody></table></div>`;
+
+  return `<section class="card" id="board">
+    <h2 class="card-title">Decision board</h2>
+    <p class="help">Pick a faction, nights and a block. The counted people sort into buckets for exactly that scenario.</p>
+    <div class="scenario">
+      <div class="seg" role="group" aria-label="Faction">
+        <button type="button" class="seg-btn horde${sc.faction === 'horde' ? ' on' : ''}" data-action="faction" data-f="horde">Horde</button>
+        <button type="button" class="seg-btn ally${sc.faction === 'ally' ? ' on' : ''}" data-action="faction" data-f="ally">Alliance</button>
+      </div>
+      <div class="daychips" role="group" aria-label="Raid nights">${CONFIG.days.map((d, i) => `<button type="button" class="chip${sc.days.includes(i) ? ' on' : ''}" data-action="day" data-d="${i}" aria-pressed="${sc.days.includes(i)}">${d}</button>`).join('')}</div>
+      <label class="sel">Block <select name="start">${starts.map(s => `<option value="${s}"${s === sc.start ? ' selected' : ''}>${esc(windowLabel(s, sc.len))}${esc(candNote(s))}</option>`).join('')}</select></label>
+      <label class="sel">Length <select name="len">${[5, 6, 7].map(l => `<option value="${l}"${l === sc.len ? ' selected' : ''}>${l / 2} h</option>`).join('')}</select></label>
+    </div>
+    <p class="sc-title"><span class="f-${sc.faction}">${fname}</span> · ${esc(dayList(sc.days))} · ${esc(windowLabel(sc.start, sc.len))} Pacific${cand ? ` <span class="muted">(${CONFIG.candidates[cand].note} Tue/Wed block)</span>` : ''}</p>
+    <div class="buckets">${bucketHtml}</div>
+    <p class="help">Of the ${fmtN(S.counts.in + S.counts.ifNeeded)} who are in, <strong>${fmtN(S.counts.unhappy)}</strong> would rather have the other faction or block.</p>
+    ${members('unhappy', S.unhappy)}
+    <div class="buckets" style="margin-top:12px">${flipsHtml}</div>
+
+    <h3>Compare every start time</h3>
+    <p class="help">Raiders available on <strong>${esc(dayList(sc.days))}</strong> for a ${sc.len / 2}-hour block, by faction and start. Big number: in every night. Small: extra people if "if needed" counts. Click a cell to load it above.</p>
+    ${matrix}
+  </section>`;
+}
+
+function heatSection(rows, admin) {
+  const sc = R.sc;
+  const H = heatData(rows, sc);
+  const W = bestWindows(rows, sc);
+  const fname = L.factionName[sc.faction];
+  const cand = candidateOf(sc);
+  let table = `<div class="tablewrap"><table class="heat"><thead><tr><th class="day"></th>${Array.from({ length: CONFIG.slots }, (_, k) => `<th>${k % 2 === 0 ? esc(fmtClock(slotMins(k), true)) : ''}</th>`).join('')}</tr></thead><tbody>`;
+  for (let d = 0; d < 5; d++) {
+    table += `<tr><th class="day">${CONFIG.days[d]}</th>`;
+    for (let k = 0; k < CONFIG.slots; k++) {
+      const i = d * CONFIG.slots + k, a = H.avail[i], n = H.ifn[i], t = H.total ? a / H.total : 0;
+      const inWin = sc.days.includes(d) && k >= sc.start && k < sc.start + sc.len;
+      const selected = R.heatSel && R.heatSel.d === d && R.heatSel.k === k;
+      const title = `${CONFIG.dayLong[d]} ${slotLabel(k)}: ${fmtN(a)} available, ${fmtN(n)} if needed, of ${fmtN(H.total)}`;
+      table += `<td><${admin ? 'button type="button"' : 'div'} class="hcell${admin ? ' clickable' : ''}${inWin ? ' cand' : ''}${selected ? ' sel' : ''}" ${admin ? `data-action="heat" data-d="${d}" data-k="${k}"` : ''} style="background:${seq(t)};color:${seqText(t)}" title="${esc(title)}"><b>${fmtN(a)}</b><small>+${fmtN(n)}</small></${admin ? 'button' : 'div'}></td>`;
+    }
+    table += '</tr>';
+  }
+  table += '</tbody></table></div>';
+
+  let picked = '';
+  if (admin && R.heatSel) {
+    const { d, k } = R.heatSel; const i = d * CONFIG.slots + k;
+    const yes = H.pop.filter(r => r.g[i] === 2), maybe = H.pop.filter(r => r.g[i] === 1), no = H.pop.filter(r => r.g[i] === 0);
+    const col = (title, list) => `<div><h4>${title} (${list.length})</h4><ul>${list.map(r => `<li>${who(r)}</li>`).join('') || '<li class="muted">nobody</li>'}</ul></div>`;
+    picked = `<p class="help" style="margin-top:12px"><strong>${CONFIG.dayLong[d]} ${esc(slotLabel(k))} Pacific</strong></p><div class="namecols">${col('Available', yes)}${col('If needed', maybe)}${col('Not available', no)}</div>`;
+  }
+  const winItem = w => `<li><div><span>${esc(dayList(w.days))} ${esc(windowLabel(w.start, sc.len))}</span><b>${fmtN(w.strict)}</b><small>+${fmtN(w.lenient - w.strict)}</small><button type="button" class="mini" data-action="use" data-days="${w.days.join(',')}" data-s="${w.start}">Use</button></div></li>`;
+  return `<section class="card">
+    <div class="section-head"><h2 class="card-title">Availability heatmap</h2>
+      <label class="check inline"><input type="checkbox" data-action="heatFaction"${R.heatFactionOnly ? ' checked' : ''}> Only people who'd play ${esc(fname)}</label></div>
+    <p class="help">How many of the ${fmtN(H.total)} counted people are available in each half-hour, Pacific time. Outlined cells are the current scenario.${admin ? ' Click a cell to see who.' : ''}</p>
+    ${table}${picked}
+    <div class="two-col" style="margin-top:18px">
+      <div><h3>Best single nights (${sc.len / 2} h)</h3><ol class="winlist">${W.singles.map(winItem).join('')}</ol></div>
+      <div><h3>Best pairs of nights (${sc.len / 2} h)</h3><ol class="winlist">${W.pairs.map(winItem).join('')}</ol></div>
+    </div>
+    <p class="help" style="margin-top:8px">Big number: available the whole block every night. Small: extra people if "if needed" counts. "Use" loads it into the decision board.</p>
+  </section>`;
+}
+
+function reasonsSection(rows) {
+  const pool = rows.filter(r => r.interest !== 'in');
+  const counts = {}; L.reasonOrder.forEach(k => counts[k] = 0);
+  for (const r of pool) for (const k of r.reasons) if (counts[k] != null) counts[k]++;
+  const items = L.reasonOrder.map(k => ({ label: L.reasons[k], value: counts[k] }));
+  return `<section class="card">
+    <h2 class="card-title">What's holding people back</h2>
+    <p class="help">Among the ${pool.length} ${pool.length === 1 ? 'person' : 'people'} who didn't pick "Count me in". People could pick more than one.</p>
+    ${pool.length ? barList(items, Math.max(1, pool.length)) : '<p class="muted">Everyone is in. Nice.</p>'}
+  </section>`;
+}
+function commentsSection(rows) {
+  const list = rows.filter(r => (r.comment && r.comment.trim()) || (r.reasonText && r.reasonText.trim()));
+  return `<section class="card">
+    <h2 class="card-title">Comments</h2>
+    <p class="help">Admin only. ${list.length} ${list.length === 1 ? 'person' : 'people'} left something.</p>
+    ${list.map(r => `<div class="comment"><div class="who"><b>${who(r)}</b> · ${esc(L.interest[r.interest])} · ${esc(L.faction[r.faction] || '')} · ${esc(L.block[r.block] || '')}</div>${r.reasonText ? `<div><span class="muted">Holding back:</span> ${esc(r.reasonText)}</div>` : ''}${r.comment ? `<div>${esc(r.comment)}</div>` : ''}</div>`).join('') || '<p class="muted">No comments yet.</p>'}
+  </section>`;
+}
+function tableSection(rows) {
+  const sorted = rows.slice().sort((a, b) => String(a.name || '').localeCompare(String(b.name || '')));
+  return `<section class="card">
+    <h2 class="card-title">Every response</h2>
+    <p class="help">Admin only. Hover the availability strip for the layout; Mon to Fri rows, 5 PM to 11 PM Pacific.</p>
+    <div class="tablewrap"><table class="simple"><thead><tr><th>Name</th><th>Discord</th><th>Playing</th><th>Faction</th><th>Tue/Wed block</th><th>Availability</th><th>Depends on</th><th>Updated</th></tr></thead>
+    <tbody>${sorted.map(r => `<tr><td><b>${who(r)}</b></td><td>${esc(r.discord || '')}</td><td>${esc(L.interest[r.interest] || r.interest)}</td><td>${esc(L.faction[r.faction] || r.faction)}</td><td>${esc(L.block[r.block] || r.block)}</td><td>${miniGrid(r.g)}</td><td>${r.reasons.map(k => `<span class="flag">${esc(L.reasons[k] || k)}</span>`).join(' ')}</td><td class="muted">${esc(fmtTime(r.updatedAt))}</td></tr>`).join('')}</tbody></table></div>
+  </section>`;
+}
+
+// =====================================================================
+// Admin helpers
+// =====================================================================
+async function adminLogin() {
+  const key = prompt(DEMO ? 'Admin key (demo mode: type demo)' : 'Enter the admin key');
+  if (!key) return;
+  const res = await api.fetchAdmin(key.trim());
+  if (res && res.ok) {
+    R.adminKey = key.trim(); store.set('rfi-poll-admin', R.adminKey);
+    R.raw = res; R.scope = 'admin'; R.rows = prepRows(res.responses || []); R.generatedAt = res.generatedAt || new Date().toISOString();
+    if (!location.hash.startsWith('#results')) location.hash = '#results'; else drawResults();
+  } else {
+    alert((res && res.error) || 'Could not sign in.');
+  }
+}
+function exportCsv() {
+  const cols = ['name', 'discord', 'interest', 'reasons', 'reasonText', 'faction', 'block', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'grid', 'tz', 'comment', 'updatedAt', 'firstSeen'];
+  const lines = [cols.join(',')];
+  for (const r of R.rows) {
+    lines.push(cols.map(c => {
+      if (c === 'reasons') return csvCell((r.reasons || []).join('|'));
+      const di = CONFIG.days.indexOf(c);
+      if (di >= 0) return csvCell(daySummary(r.g, di));
+      if (c === 'grid') return csvCell(r.grid ? 'g' + r.grid : '');
+      return csvCell(r[c] == null ? '' : r[c]);
+    }).join(','));
+  }
+  const blob = new Blob(['﻿' + lines.join('\r\n')], { type: 'text/csv;charset=utf-8' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `rfi-poll-${new Date().toISOString().slice(0, 10)}.csv`;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+}
+function csvCell(v) { const s = String(v); return /[",\r\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s; }
+
+// =====================================================================
+// Event delegation
+// =====================================================================
+document.addEventListener('click', e => {
+  const t = e.target.closest('[data-action]'); if (!t) return;
+  const a = t.dataset.action;
+  if (a === 'reload') { renderResults(true); return; }
+  if (a === 'edit') { loadForm(); renderPoll(); return; }
+  if (a === 'start-fresh') { store.del('rfi-poll-draft'); store.del('rfi-poll-last'); F = null; formNote = ''; renderPoll(); return; }
+  if (a === 'admin-login') { adminLogin(); return; }
+  if (a === 'admin-logout') { R.adminKey = ''; store.del('rfi-poll-admin'); R.raw = null; if (location.hash.startsWith('#results')) renderResults(true); else drawFoot(false); return; }
+  if (a === 'csv') { exportCsv(); return; }
+  if (a === 'demo-sample') { api.loadSample(); renderResults(true); return; }
+  if (a === 'demo-clear') { if (confirm('Clear all demo responses?')) { api.clear(); renderResults(true); } return; }
+  if (!R.raw) return;
+  if (a === 'chip') { const k = t.dataset.k; if (R.include.has(k)) R.include.delete(k); else R.include.add(k); drawResults(); }
+  else if (a === 'weighted') { R.weighted = !R.weighted; drawResults(); }
+  else if (a === 'faction') { R.sc.faction = t.dataset.f; drawResults(); }
+  else if (a === 'day') { const d = +t.dataset.d, i = R.sc.days.indexOf(d); if (i >= 0) { if (R.sc.days.length > 1) R.sc.days.splice(i, 1); } else R.sc.days.push(d); R.sc.days.sort((x, y) => x - y); drawResults(); }
+  else if (a === 'cell') { R.sc.faction = t.dataset.f; R.sc.start = +t.dataset.s; drawResults(); }
+  else if (a === 'use') { R.sc.days = t.dataset.days.split(',').map(Number); R.sc.start = +t.dataset.s; drawResults(); const b = $('#board'); if (b) b.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+  else if (a === 'heat') { const d = +t.dataset.d, k = +t.dataset.k; R.heatSel = (R.heatSel && R.heatSel.d === d && R.heatSel.k === k) ? null : { d, k }; drawResults(); }
+  else if (a === 'heatFaction') { R.heatFactionOnly = !R.heatFactionOnly; drawResults(); }
+});
+view.addEventListener('change', e => {
+  const t = e.target;
+  if (t.name === 'start') { R.sc.start = +t.value; drawResults(); }
+  else if (t.name === 'len') { R.sc.len = +t.value; R.sc.start = Math.min(R.sc.start, CONFIG.slots - R.sc.len); drawResults(); }
+});
+view.addEventListener('toggle', e => {
+  const d = e.target;
+  if (d.matches && d.matches('details[data-bucket]')) { if (d.open) R.openBuckets.add(d.dataset.bucket); else R.openBuckets.delete(d.dataset.bucket); }
+}, true);
+
+// =====================================================================
+// Demo sample data (only used when no backend is configured)
+// =====================================================================
+function sampleData() {
+  const names = ['Thrallicia', 'Bobbyhoof', 'Mordrath', 'Elunara', 'Gankstar', 'Pyrelle', 'Doomhoof', 'Sylvanya', 'Kaelthorn', 'Brewmaster Pete', 'Vexxine', 'Grommash Jr', 'Ashbringer88', 'Tinkerbelle', 'Zugzug', 'Lightwell', 'Shadowmeld', 'Critchicken', 'Moonfang', 'Ragefist', 'Hannah the Holy', 'Arcanis', 'Stabbyjoe', 'Frostfang'];
+  const comments = ['Earlier would be a lifesaver with the kids.', 'I can do either, just tell me when.', 'Please no Alliance, I beg.', 'Happy to fill if needed on off nights.', 'Thursday is D&D night, sorry.', 'Will play whatever, just want to raid with you all again.', 'If we go earlier I might miss the first pull on Tuesdays.'];
+  let seed = 20261015;
+  const rnd = () => { seed = (seed * 1103515245 + 12345) % 2147483648; return seed / 2147483648; };
+  const pickW = pairs => { const tot = pairs.reduce((a, p) => a + p[1], 0); let x = rnd() * tot; for (const [v, w] of pairs) { x -= w; if (x <= 0) return v; } return pairs[pairs.length - 1][0]; };
+  return names.map((name, i) => {
+    const interest = pickW([['in', 10], ['likely', 6], ['undecided', 4], ['unlikely', 2], ['out', 2]]);
+    const faction = pickW([['hordeReq', 4], ['hordePref', 8], ['either', 6], ['allyPref', 4], ['allyReq', 2]]);
+    const block = pickW([['early', 9], ['late', 7], ['either', 7], ['neither', 1]]);
+    let reasons = [];
+    if (interest !== 'in') {
+      reasons.push(pickW([['faction', 5], ['time', 5], ['people', 3], ['game', 2], ['life', 2], ['other', 1]]));
+      if (rnd() < 0.4) reasons.push(pickW([['faction', 3], ['time', 3], ['people', 2], ['life', 2]]));
+      reasons = Array.from(new Set(reasons));
+    }
+    const g = new Array(60).fill(0);
+    const earliest = pickW([[0, 2], [1, 3], [2, 4], [3, 6], [4, 3], [5, 3]]);
+    const latest = pickW([[8, 2], [9, 3], [10, 4], [11, 5], [12, 6]]);
+    for (let d = 0; d < 5; d++) {
+      if (rnd() < 0.22) continue;
+      const e = Math.max(0, earliest + (rnd() < 0.3 ? 1 : 0)), l = Math.min(12, latest - (rnd() < 0.3 ? 1 : 0));
+      for (let k = e; k < l; k++) g[d * 12 + k] = 2;
+      if (e > 0 && rnd() < 0.6) g[d * 12 + e - 1] = 1;
+      if (l < 12 && rnd() < 0.6) g[d * 12 + l] = 1;
+    }
+    const when = new Date(Date.now() - i * 5400000).toISOString();
+    return {
+      name, nameKey: name.toLowerCase(), discord: rnd() < 0.5 ? name.toLowerCase().replace(/\s+/g, '') : '',
+      interest, reasons,
+      reasonText: reasons.includes('faction') && rnd() < 0.6
+        ? (faction.startsWith('horde') ? "I'm in if we stay Horde." : faction.startsWith('ally') ? 'Only if we go Alliance, honestly.' : 'Depends which way the guild leans, I guess.')
+        : (reasons.includes('time') && rnd() < 0.6 ? 'Depends on whether we move earlier.' : ''),
+      faction, block,
+      grid: interest === 'out' && rnd() < 0.5 ? '' : g.join(''),
+      tz: pickW([['America/Los_Angeles', 5], ['America/Denver', 2], ['America/Chicago', 3], ['America/New_York', 3]]),
+      comment: rnd() < 0.3 ? comments[i % comments.length] : '',
+      updatedAt: when, firstSeen: when
+    };
+  });
+}
+
+// =====================================================================
+// Boot
+// =====================================================================
+$('#brandName').textContent = CONFIG.guildName;
+$('#brandSub').textContent = `${CONFIG.gameName} faction & raid-time poll`;
+document.title = `${CONFIG.guildShort} Raid Poll`;
+drawBanner();
+route();
+</script>
+</body>
+</html>
