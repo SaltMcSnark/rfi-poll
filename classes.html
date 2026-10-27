@@ -1,0 +1,830 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="dark">
+<title>RFI Class Poll</title>
+<meta name="description" content="Room for Improvement: WoW Forever class, spec and role poll">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0f1117;--card:#171a23;--card-2:#1d2130;--card-3:#242a3b;
+  --line:#262b38;--line-2:#343b4f;
+  --text:#f3f4f6;--text-2:#b4b8c5;--muted:#8a8f9e;
+  --gold:#d4a24a;--gold-2:#e8c272;--gold-dim:rgba(212,162,74,.14);
+  --good:#0ca30c;--warn:#fab219;--danger:#e66767;--lost:#6b7280;
+  --radius:12px;
+  --sans:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  --display:"Cinzel",Georgia,"Times New Roman",serif;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{margin:0;background:var(--bg);color:var(--text);font-family:var(--sans);font-size:16px;line-height:1.5;-webkit-text-size-adjust:100%}
+a{color:var(--gold-2)}
+button,input,select,textarea{font:inherit;color:inherit}
+.wrap{max-width:980px;margin:0 auto;padding:20px 16px 72px}
+
+/* header */
+.top{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:12px;padding:6px 0 18px;border-bottom:1px solid var(--line);margin-bottom:20px}
+.brand h1{font-family:var(--display);font-weight:700;font-size:26px;letter-spacing:.04em;margin:0;color:var(--gold-2)}
+.brand .sub{color:var(--text-2);font-size:14px;margin-top:2px}
+.tabs{display:flex;gap:6px;flex-wrap:wrap}
+.tabs a{display:inline-block;padding:8px 16px;border-radius:999px;border:1px solid var(--line-2);color:var(--text-2);text-decoration:none;font-weight:600;font-size:14px}
+.tabs a.active{background:var(--gold-dim);border-color:var(--gold);color:var(--gold-2)}
+.tabs a.other{border-style:dashed}
+
+/* cards & text */
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:20px;margin-bottom:16px}
+.card.error{border-color:var(--danger)}
+.card-title{font-family:var(--display);font-size:17px;letter-spacing:.03em;color:var(--gold-2);margin:0 0 6px;font-weight:600}
+h3{font-size:15px;margin:18px 0 8px;font-weight:650;color:var(--text)}
+.help{color:var(--muted);font-size:14px;margin:0 0 12px}
+.req{color:var(--danger);font-weight:700}
+.opt{color:var(--muted);font-style:normal;font-weight:400}
+.muted{color:var(--muted)}
+.center{text-align:center;color:var(--text-2)}
+code{background:var(--card-3);padding:1px 6px;border-radius:6px;font-size:.92em}
+.section-head{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:baseline;gap:8px}
+
+/* fields */
+.fields{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}
+.field{display:flex;flex-direction:column;gap:6px;font-size:14px;color:var(--text-2)}
+.field input,textarea,select{background:var(--card-2);border:1px solid var(--line-2);border-radius:8px;padding:10px 12px;color:var(--text);width:100%}
+.field input:focus,textarea:focus,select:focus{outline:2px solid var(--gold);outline-offset:1px;border-color:var(--gold)}
+textarea{resize:vertical;min-height:80px}
+
+/* choices */
+.choices{display:grid;gap:8px;grid-template-columns:repeat(auto-fit,minmax(160px,1fr))}
+.choice{position:relative;display:flex;align-items:center;gap:10px;padding:12px 14px;border:1px solid var(--line-2);border-radius:10px;background:var(--card-2);cursor:pointer;transition:border-color .15s,background .15s;font-size:15px}
+.choice input{position:absolute;opacity:0;pointer-events:none;width:0;height:0}
+.choice:hover{border-color:var(--gold)}
+.choice:focus-within{outline:2px solid var(--gold);outline-offset:1px}
+.choice.selected{border-color:var(--gold);background:var(--gold-dim);box-shadow:inset 0 0 0 1px var(--gold)}
+.classgrid{display:grid;gap:8px;grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}
+.classbtn{display:flex;align-items:center;gap:10px;padding:12px 14px;border:1px solid var(--line-2);border-radius:10px;background:var(--card-2);cursor:pointer;font-size:15px;color:var(--text);text-align:left}
+.classbtn:hover{border-color:var(--gold)}
+.classbtn.selected{border-color:var(--gold);background:var(--gold-dim);box-shadow:inset 0 0 0 1px var(--gold)}
+.sw{display:inline-block;width:12px;height:12px;border-radius:3px;flex:none}
+.specrow{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+.chip{border:1px solid var(--line-2);background:var(--card-2);color:var(--text-2);border-radius:999px;padding:6px 12px;font-size:14px;cursor:pointer;display:inline-flex;align-items:center;gap:6px}
+.chip.on{border-color:var(--gold);background:var(--gold-dim);color:var(--gold-2)}
+.chip-n{font-size:12px;color:var(--muted);background:var(--card-3);padding:0 7px;border-radius:999px}
+.chip.on .chip-n{color:var(--gold-2)}
+.subq{margin-top:14px;padding:14px;border-radius:10px;background:var(--card-2);border:1px dashed var(--line-2)}
+.subq h3{margin-top:0}
+.checks{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
+.check{display:inline-flex;align-items:center;gap:8px;font-size:14px;cursor:pointer;padding:6px 12px;border:1px solid var(--line-2);border-radius:999px;background:var(--card)}
+.check input{width:16px;height:16px;accent-color:var(--gold);margin:0;flex:none}
+.check.on{border-color:var(--gold);background:var(--gold-dim)}
+
+/* buttons & notices */
+.btn{border:1px solid var(--line-2);background:var(--card-2);color:var(--text);border-radius:10px;padding:10px 18px;font-weight:600;cursor:pointer;text-decoration:none;display:inline-block}
+.btn:hover{border-color:var(--gold)}
+.btn-primary{background:var(--gold);border-color:var(--gold);color:#1a1405}
+.btn-primary:hover{background:var(--gold-2)}
+.btn:disabled{opacity:.6;cursor:default}
+.btn.small{padding:6px 12px;font-size:13px}
+.submit-row{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin:8px 0 12px}
+.notice{border-radius:10px;padding:12px 14px;margin:0 0 16px;font-size:14px;border:1px solid var(--line-2);background:var(--card-2)}
+.notice.error{border-color:var(--danger);color:#ffd9d9}
+.notice.info{border-color:var(--gold);color:var(--text-2)}
+.notice .btn{margin-left:8px}
+
+/* results */
+.filterbar{position:sticky;top:0;z-index:5;box-shadow:0 8px 24px rgba(0,0,0,.35);padding:12px 16px}
+.filterbar .help{margin:8px 0 0;font-size:13px}
+.filter-row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.filter-title{font-weight:650;margin-right:4px}
+.seg{display:inline-flex;border:1px solid var(--line-2);border-radius:999px;overflow:hidden;margin-left:auto}
+.seg-btn{border:0;background:transparent;color:var(--text-2);padding:6px 14px;cursor:pointer;font-weight:600;font-size:14px}
+.seg-btn.on{background:var(--gold);color:#1a1405}
+.stats{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));margin-bottom:16px}
+.stat{background:var(--card-2);border:1px solid var(--line);border-radius:10px;padding:12px 14px}
+.stat-val{font-size:28px;font-weight:700;line-height:1.1}
+.stat-label{font-size:13px;color:var(--muted);margin-top:4px}
+.roletiles{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(210px,1fr))}
+.roletile{background:var(--card-2);border:1px solid var(--line);border-radius:10px;padding:12px 14px;border-top:3px solid var(--line-2)}
+.roletile.short{border-top-color:var(--danger)}
+.roletile.ok{border-top-color:var(--good)}
+.roletile.over{border-top-color:var(--gold)}
+.roletile .rl{font-size:14px;color:var(--text-2);font-weight:600}
+.roletile .have{font-size:28px;font-weight:700;line-height:1.1;margin-top:2px}
+.roletile .have small{font-size:14px;color:var(--muted);font-weight:500}
+.roletile .status{font-size:13px;margin-top:4px;font-weight:600}
+.roletile.short .status{color:#ffb4b4}
+.roletile.ok .status{color:#8fe08f}
+.roletile.over .status{color:var(--gold-2)}
+.gauge{height:8px;background:var(--card-3);border-radius:4px;overflow:hidden;margin-top:8px}
+.gauge i{display:block;height:100%;border-radius:4px}
+.names{font-size:13px;color:var(--text-2);margin-top:8px;line-height:1.7}
+.pill{display:inline-block;font-size:12px;padding:1px 8px;border-radius:999px;background:var(--card-3);color:var(--text-2);margin:2px 4px 2px 0;border:1px solid transparent;white-space:nowrap}
+.pill .sw{width:8px;height:8px;border-radius:2px;margin-right:5px;vertical-align:0}
+.pill b{color:var(--text);font-weight:600}
+.classrow{display:grid;grid-template-columns:150px 1fr 44px;gap:10px;align-items:start;padding:10px 0;border-bottom:1px solid var(--line)}
+.classrow:last-child{border-bottom:0}
+.classrow .cn{display:flex;align-items:center;gap:8px;font-weight:600}
+.classrow .cn small{display:block;color:var(--muted);font-size:12px;font-weight:400}
+.classrow .n{font-size:20px;font-weight:700;text-align:right;font-variant-numeric:tabular-nums}
+.bar-track{height:10px;background:var(--card-3);border-radius:4px;overflow:hidden;margin:6px 0 4px}
+.bar-fill{height:100%;border-radius:0 4px 4px 0}
+table.simple{border-collapse:collapse;width:100%;font-size:14px}
+table.simple th,table.simple td{padding:7px 10px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+table.simple th{color:var(--muted);font-weight:500;font-size:13px}
+table.simple td.num,table.simple th.num{text-align:right;font-variant-numeric:tabular-nums}
+table.simple td.hi{background:var(--gold-dim)}
+.tablewrap{overflow-x:auto}
+.flexblock{padding:10px 0;border-bottom:1px solid var(--line)}
+.flexblock:last-child{border-bottom:0}
+.flexblock .ft{font-weight:600}
+.flexblock .ft .tag{font-size:12px;font-weight:600;padding:1px 8px;border-radius:999px;margin-left:8px;background:var(--card-3);color:var(--text-2)}
+.flexblock .ft .tag.short{background:rgba(230,103,103,.18);color:#ffb4b4}
+.flexblock .ft .tag.none{background:rgba(230,103,103,.18);color:#ffb4b4}
+.comment{border-left:3px solid var(--gold);padding:6px 12px;margin:0 0 10px;background:var(--card-2);border-radius:0 8px 8px 0;white-space:pre-wrap}
+.comment .who{font-size:13px;color:var(--muted);white-space:normal}
+.adminbar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;background:var(--gold-dim);border:1px solid var(--gold);border-radius:10px;padding:10px 14px;margin-bottom:16px;font-size:14px}
+.adminbar .actions{display:flex;gap:8px;flex-wrap:wrap}
+.foot{margin-top:28px;padding-top:14px;border-top:1px solid var(--line);color:var(--muted);font-size:13px;display:flex;flex-wrap:wrap;gap:12px;justify-content:space-between}
+.foot button{background:none;border:0;color:var(--muted);cursor:pointer;text-decoration:underline;padding:0}
+.loading{opacity:.55;pointer-events:none}
+
+@media (max-width:640px){
+  .brand h1{font-size:22px}
+  .card{padding:16px 14px}
+  .classrow{grid-template-columns:1fr 44px}
+  .classrow .bar-wrap{grid-column:1 / -1}
+  .filterbar{position:static;box-shadow:none}
+  .seg{margin-left:0}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="brand">
+      <h1 id="brandName">Room for Improvement</h1>
+      <div class="sub" id="brandSub">WoW Forever class &amp; spec poll</div>
+    </div>
+    <nav class="tabs" aria-label="Pages">
+      <a href="#poll" data-page="poll">Poll</a>
+      <a href="#results" data-page="results">Results</a>
+      <a href="index.html" class="other" title="The faction and raid-time poll">Raid poll</a>
+    </nav>
+  </header>
+  <div id="banner"></div>
+  <main id="view"></main>
+  <footer class="foot" id="foot"></footer>
+</div>
+
+<script>
+'use strict';
+
+// =====================================================================
+// CONFIG - the only block you need to edit
+// =====================================================================
+const CONFIG = {
+  endpoint: 'https://script.google.com/macros/s/AKfycbxm3TaOygH-R3byGRseFFfVQlcuho6abiULT2vWlJBF-gDeYGuLA4X4oAtEX8WOQ6gQWg/exec',            // the same Apps Script web app URL as the raid poll. Empty = demo mode.
+  poll: 'classes',
+  guildName: 'Room for Improvement',
+  guildShort: 'RFI',
+  gameName: 'WoW Forever',
+  // WoW Forever: paladin and shaman exist on both factions, so everyone gets all nine.
+  classes: [
+    { id: 'warrior', name: 'Warrior', color: '#C79C6E', specs: ['Arms', 'Fury', 'Protection'] },
+    { id: 'paladin', name: 'Paladin', color: '#F58CBA', specs: ['Holy', 'Protection', 'Retribution'] },
+    { id: 'hunter',  name: 'Hunter',  color: '#ABD473', specs: ['Beast Mastery', 'Marksmanship', 'Survival'] },
+    { id: 'rogue',   name: 'Rogue',   color: '#FFF569', specs: ['Assassination', 'Combat', 'Subtlety'] },
+    { id: 'priest',  name: 'Priest',  color: '#FFFFFF', specs: ['Discipline', 'Holy', 'Shadow'] },
+    { id: 'shaman',  name: 'Shaman',  color: '#0070DE', specs: ['Elemental', 'Enhancement', 'Restoration'] },
+    { id: 'mage',    name: 'Mage',    color: '#69CCF0', specs: ['Arcane', 'Fire', 'Frost'] },
+    { id: 'warlock', name: 'Warlock', color: '#9482C9', specs: ['Affliction', 'Demonology', 'Destruction'] },
+    { id: 'druid',   name: 'Druid',   color: '#FF7D0A', specs: ['Balance', 'Feral', 'Restoration'] }
+  ],
+  roles: [['tank', 'Tank'], ['healer', 'Healer'], ['melee', 'Melee DPS'], ['ranged', 'Ranged DPS']],
+  raiding: [['yes', "Yes, I'm raiding"], ['maybe', 'Maybe'], ['no', 'No, playing but not raiding']],
+  // The role the page suggests when a spec is picked. People can change it. Feral is left open.
+  specRole: {
+    'warrior/Arms': 'melee', 'warrior/Fury': 'melee', 'warrior/Protection': 'tank',
+    'paladin/Holy': 'healer', 'paladin/Protection': 'tank', 'paladin/Retribution': 'melee',
+    'hunter/*': 'ranged', 'rogue/*': 'melee', 'mage/*': 'ranged', 'warlock/*': 'ranged',
+    'priest/Discipline': 'healer', 'priest/Holy': 'healer', 'priest/Shadow': 'ranged',
+    'shaman/Elemental': 'ranged', 'shaman/Enhancement': 'melee', 'shaman/Restoration': 'healer',
+    'druid/Balance': 'ranged', 'druid/Feral': null, 'druid/Restoration': 'healer'
+  },
+  // Role targets shown on the results page. Edit freely.
+  targets: {
+    20: { tank: 3, healer: 6, melee: 5, ranged: 6 },
+    40: { tank: 5, healer: 12, melee: 10, ranged: 13 }
+  },
+  defaultRaidSize: 20,
+  defaultInclude: ['yes', 'maybe']
+};
+
+const CLASS = {}; CONFIG.classes.forEach(c => CLASS[c.id] = c);
+const ROLE = {}; CONFIG.roles.forEach(([id, label]) => ROLE[id] = label);
+const RAIDING = {}; CONFIG.raiding.forEach(([id, label]) => RAIDING[id] = label);
+const RAIDING_SHORT = { yes: 'Raiding', maybe: 'Maybe', no: 'Not raiding' };
+
+// =====================================================================
+// Small helpers
+// =====================================================================
+const $ = (sel, root) => (root || document).querySelector(sel);
+const $$ = (sel, root) => Array.from((root || document).querySelectorAll(sel));
+const view = $('#view');
+function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
+function notice(kind, html) { return `<div class="notice ${kind}">${html}</div>`; }
+function fmtTime(iso) { try { return new Date(iso).toLocaleString([], { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }); } catch (e) { return ''; } }
+function specLabel(s) { return s === 'undecided' ? 'Undecided' : s; }
+function suggestedRole(klass, spec) {
+  if (!klass || !spec || spec === 'undecided') return null;
+  const m = CONFIG.specRole;
+  if (`${klass}/${spec}` in m) return m[`${klass}/${spec}`];
+  if (`${klass}/*` in m) return m[`${klass}/*`];
+  return null;
+}
+const store = {
+  get(k, d) { try { const v = localStorage.getItem(k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } },
+  set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} },
+  del(k) { try { localStorage.removeItem(k); } catch (e) {} }
+};
+const KEY_DRAFT = 'rfi-classes-draft', KEY_LAST = 'rfi-classes-last', KEY_ADMIN = 'rfi-poll-admin';
+
+// =====================================================================
+// Backend: Apps Script when CONFIG.endpoint is set, otherwise a demo store in this browser
+// =====================================================================
+const DEMO = !CONFIG.endpoint;
+const api = DEMO ? demoApi() : realApi();
+
+function realApi() {
+  const url = CONFIG.endpoint;
+  async function get(params) {
+    params.poll = CONFIG.poll; params._ = Date.now();
+    const r = await fetch(url + '?' + new URLSearchParams(params).toString(), { method: 'GET', cache: 'no-store' });
+    return r.json();
+  }
+  async function post(body) {
+    body.poll = CONFIG.poll;
+    // Plain-text body on purpose: it avoids a CORS preflight, which Apps Script cannot answer.
+    const r = await fetch(url, { method: 'POST', body: JSON.stringify(body) });
+    return r.json();
+  }
+  return {
+    ping: () => get({ mode: 'ping' }),
+    submit: p => post(Object.assign({ action: 'submit' }, p)),
+    fetchPublic: () => get({ mode: 'public' }),
+    fetchAdmin: key => post({ action: 'admin', key })
+  };
+}
+
+function demoApi() {
+  const KEY = 'rfi-classes-demo-data';
+  const load = () => store.get(KEY, []);
+  const save = rows => store.set(KEY, rows);
+  const later = v => new Promise(res => setTimeout(() => res(v), 200));
+  const pub = r => ({ name: r.name, raiding: r.raiding, klass: r.klass, spec: r.spec, role: r.role, flex: r.flex, flexRoles: r.flexRoles || [], flexClasses: r.flexClasses || [], updatedAt: r.updatedAt });
+  return {
+    ping: () => later({ ok: true, polls: { classes: load().length }, passphraseRequired: false, adminKeySet: true, closedPolls: [], demo: true }),
+    submit: async p => {
+      const rows = load();
+      const nameKey = p.name.trim().toLowerCase().replace(/\s+/g, ' ');
+      const rec = Object.assign({}, p, { nameKey, updatedAt: new Date().toISOString() });
+      delete rec.passphrase; delete rec.action;
+      const i = rows.findIndex(r => r.nameKey === nameKey);
+      if (i >= 0) { rec.firstSeen = rows[i].firstSeen || rec.updatedAt; rows[i] = rec; } else { rec.firstSeen = rec.updatedAt; rows.push(rec); }
+      save(rows);
+      return later({ ok: true, updated: i >= 0, name: p.name });
+    },
+    fetchPublic: () => later({ ok: true, scope: 'public', count: load().length, generatedAt: new Date().toISOString(), responses: load().map(pub) }),
+    fetchAdmin: key => later(key === 'demo'
+      ? { ok: true, scope: 'admin', count: load().length, generatedAt: new Date().toISOString(), responses: load() }
+      : { ok: false, error: 'Wrong admin key. In demo mode the key is "demo".' }),
+    loadSample: () => save(sampleData()),
+    clear: () => save([])
+  };
+}
+
+// =====================================================================
+// Routing
+// =====================================================================
+function route() {
+  const h = (location.hash || '#poll').replace('#', '');
+  const page = h.indexOf('results') === 0 ? 'results' : 'poll';
+  $$('nav.tabs a[data-page]').forEach(a => a.classList.toggle('active', a.dataset.page === page));
+  if (page === 'poll') renderPoll(); else renderResults(true);
+  window.scrollTo(0, 0);
+}
+window.addEventListener('hashchange', route);
+
+function drawBanner() {
+  const b = $('#banner');
+  if (!DEMO) { b.innerHTML = ''; return; }
+  b.innerHTML = notice('info', `<strong>Demo mode.</strong> No backend is connected yet, so answers stay in this browser only. The Results tab can load sample data, and the admin key is <code>demo</code>. Paste the same Apps Script URL as the raid poll into <code>CONFIG.endpoint</code> (see SETUP.md).`);
+}
+function drawFoot(admin) {
+  $('#foot').innerHTML = `<span>${esc(CONFIG.guildName)} · ${esc(CONFIG.gameName)} class poll</span>` +
+    `<span>${admin ? '<button type="button" data-action="admin-logout">Sign out of admin</button>' : '<button type="button" data-action="admin-login">Admin sign-in</button>'}</span>`;
+}
+
+// =====================================================================
+// The poll
+// =====================================================================
+let F = null, formNote = '';
+
+function blankForm() {
+  return { name: '', discord: '', passphrase: '', raiding: '', klass: '', spec: '', role: '', roleTouched: false, flex: '', flexRoles: [], flexClasses: [], comment: '' };
+}
+function loadForm() {
+  F = blankForm(); formNote = '';
+  const draft = store.get(KEY_DRAFT, null), last = store.get(KEY_LAST, null);
+  const src = draft || last;
+  if (!src) return;
+  for (const k of Object.keys(F)) if (k in src) F[k] = src[k];
+  if (!Array.isArray(F.flexRoles)) F.flexRoles = [];
+  if (!Array.isArray(F.flexClasses)) F.flexClasses = [];
+  if (!CLASS[F.klass]) { F.klass = ''; F.spec = ''; }
+  formNote = draft ? (last ? 'edit-draft' : 'draft') : 'edit';
+  F.lastSubmitted = last ? last.submittedAt : '';
+}
+function saveDraft() { if (F) store.set(KEY_DRAFT, F); }
+
+function choiceHtml(name, pairs, cur) {
+  return pairs.map(([k, label]) => `<label class="choice${cur === k ? ' selected' : ''}"><input type="radio" name="${name}" value="${k}"${cur === k ? ' checked' : ''}><span>${esc(label)}</span></label>`).join('');
+}
+
+function renderPoll() {
+  if (!F) loadForm();
+  let note = '';
+  const fresh = '<button type="button" class="btn small" data-action="start-fresh">Start fresh instead</button>';
+  if (formNote === 'edit') note = notice('info', `You're editing the answers you submitted ${F.lastSubmitted ? 'on ' + esc(fmtTime(F.lastSubmitted)) : 'earlier'}. Submitting again replaces them. ${fresh}`);
+  else if (formNote === 'draft') note = notice('info', `Picking up where you left off (unsent draft). ${fresh}`);
+  else if (formNote === 'edit-draft') note = notice('info', `You have unsent changes to your previous answers. ${fresh}`);
+
+  view.innerHTML = `
+  ${note}
+  <form id="pollForm" novalidate autocomplete="off">
+    <section class="card" data-q="name">
+      <h2 class="card-title">Who are you?</h2>
+      <p class="help">Names on this poll are visible to the whole guild, so everyone can see who plays what. Comments stay with the admins.</p>
+      <div class="fields">
+        <label class="field"><span>Character or Discord name <b class="req">*</b></span><input name="name" maxlength="40" value="${esc(F.name)}" required></label>
+        <label class="field"><span>Discord handle <i class="opt">(optional, admins only)</i></span><input name="discord" maxlength="60" value="${esc(F.discord)}"></label>
+        <label class="field" id="passField" hidden><span>Guild passphrase</span><input name="passphrase" maxlength="60" value="${esc(F.passphrase)}"></label>
+      </div>
+    </section>
+
+    <section class="card" data-q="raiding">
+      <h2 class="card-title">Are you raiding with ${esc(CONFIG.guildShort)}?</h2>
+      <div class="choices">${choiceHtml('raiding', CONFIG.raiding, F.raiding)}</div>
+    </section>
+
+    <section class="card" data-q="main" id="mainCard">
+      <h2 class="card-title">What is your main?</h2>
+      <p class="help">Pick the class first, then the spec. If you are torn between specs, pick Undecided.</p>
+      <div id="mainBody"></div>
+    </section>
+
+    <section class="card" data-q="role" id="roleCard">
+      <h2 class="card-title">What role will you fill in raids?</h2>
+      <p class="help">The usual role for your spec is filled in once you pick one. Change it if you plan to play it differently.</p>
+      <div class="choices" id="roleBody"></div>
+    </section>
+
+    <section class="card" data-q="flex" id="flexCard">
+      <h2 class="card-title">If we end up short somewhere, could you switch?</h2>
+      <p class="help">This is what tells us which gaps can be fixed from inside the guild.</p>
+      <div class="choices">${choiceHtml('flex', [['yes', 'Yes, I could flex'], ['no', 'No, this is my main']], F.flex)}</div>
+      <div id="flexBody"></div>
+    </section>
+
+    <section class="card" data-q="comment">
+      <h2 class="card-title">Anything else?</h2>
+      <p class="help">Only admins see comments.</p>
+      <textarea name="comment" rows="3" maxlength="1000">${esc(F.comment)}</textarea>
+    </section>
+
+    <div class="submit-row">
+      <button type="submit" class="btn btn-primary" id="submitBtn">Submit my answers</button>
+      <span class="help">Submitting again with the same name replaces your previous answers.</span>
+    </div>
+    <div id="formMsg"></div>
+  </form>`;
+  drawFoot(false);
+  refreshMain(); refreshRole(); refreshFlex();
+  wirePoll();
+}
+
+function refreshMain() {
+  const body = $('#mainBody'); if (!body) return;
+  let html = `<div class="classgrid">${CONFIG.classes.map(c => `<button type="button" class="classbtn${F.klass === c.id ? ' selected' : ''}" data-class="${c.id}"><span class="sw" style="background:${c.color}"></span>${esc(c.name)}</button>`).join('')}</div>`;
+  if (F.klass && CLASS[F.klass]) {
+    const c = CLASS[F.klass];
+    html += `<div class="specrow" role="group" aria-label="Spec">${c.specs.concat(['undecided']).map(s => `<button type="button" class="chip${F.spec === s ? ' on' : ''}" data-spec="${esc(s)}">${esc(specLabel(s))}</button>`).join('')}</div>`;
+  }
+  body.innerHTML = html;
+}
+function refreshRole() {
+  const body = $('#roleBody'); if (!body) return;
+  body.innerHTML = choiceHtml('role', CONFIG.roles, F.role);
+}
+function refreshFlex() {
+  const body = $('#flexBody'); if (!body) return;
+  if (F.flex !== 'yes') { body.innerHTML = ''; return; }
+  const roles = CONFIG.roles.filter(([id]) => id !== F.role);
+  const classes = CONFIG.classes.filter(c => c.id !== F.klass);
+  body.innerHTML = `<div class="subq">
+    <h3>Roles you could fill</h3>
+    <div class="checks">${roles.map(([id, label]) => `<label class="check${F.flexRoles.includes(id) ? ' on' : ''}"><input type="checkbox" name="flexRoles" value="${id}"${F.flexRoles.includes(id) ? ' checked' : ''}>${esc(label)}</label>`).join('')}</div>
+    <h3>Other classes you would be willing to play</h3>
+    <div class="checks">${classes.map(c => `<label class="check${F.flexClasses.includes(c.id) ? ' on' : ''}"><input type="checkbox" name="flexClasses" value="${c.id}"${F.flexClasses.includes(c.id) ? ' checked' : ''}><span class="sw" style="background:${c.color}"></span>${esc(c.name)}</label>`).join('')}</div>
+    <p class="help" style="margin:0">Tick anything you would honestly play for a season. Leave it empty if the answer is really "no".</p>
+  </div>`;
+}
+
+function wirePoll() {
+  const form = $('#pollForm');
+  api.ping().then(p => {
+    if (!p || !$('#pollForm')) return;
+    if (p.passphraseRequired) $('#passField').hidden = false;
+    const closed = Array.isArray(p.closedPolls) ? p.closedPolls.includes(CONFIG.poll) : false;
+    if (closed) {
+      const b = $('#submitBtn'); b.disabled = true; b.textContent = 'Poll closed';
+      $('#formMsg').innerHTML = notice('info', 'This poll is closed and no longer accepts answers. The Results tab still works.');
+    }
+  }).catch(() => { const pf = $('#passField'); if (pf) pf.hidden = false; });
+
+  form.addEventListener('click', e => {
+    const cb = e.target.closest('button.classbtn');
+    if (cb) {
+      if (F.klass !== cb.dataset.class) { F.klass = cb.dataset.class; F.spec = ''; if (!F.roleTouched) F.role = ''; F.flexClasses = F.flexClasses.filter(c => c !== F.klass); }
+      refreshMain(); refreshRole(); refreshFlex(); saveDraft(); return;
+    }
+    const sc = e.target.closest('button[data-spec]');
+    if (sc) {
+      F.spec = sc.dataset.spec;
+      if (!F.roleTouched) { const r = suggestedRole(F.klass, F.spec); F.role = r || ''; F.flexRoles = F.flexRoles.filter(x => x !== F.role); }
+      refreshMain(); refreshRole(); refreshFlex(); saveDraft(); return;
+    }
+  });
+  form.addEventListener('change', e => {
+    const t = e.target;
+    if (t.name === 'raiding') F.raiding = t.value;
+    else if (t.name === 'role') { F.role = t.value; F.roleTouched = true; F.flexRoles = F.flexRoles.filter(x => x !== F.role); refreshFlex(); }
+    else if (t.name === 'flex') { F.flex = t.value; refreshFlex(); }
+    else if (t.name === 'flexRoles') { F.flexRoles = $$('input[name=flexRoles]:checked', form).map(x => x.value); t.closest('.check').classList.toggle('on', t.checked); }
+    else if (t.name === 'flexClasses') { F.flexClasses = $$('input[name=flexClasses]:checked', form).map(x => x.value); t.closest('.check').classList.toggle('on', t.checked); }
+    if (t.type === 'radio') $$('.choice', t.closest('.choices')).forEach(c => c.classList.toggle('selected', c.querySelector('input').checked));
+    saveDraft();
+  });
+  form.addEventListener('input', e => {
+    const t = e.target;
+    if (['name', 'discord', 'passphrase', 'comment'].includes(t.name)) { F[t.name] = t.value; saveDraft(); }
+  });
+  form.addEventListener('submit', onSubmit);
+}
+
+async function onSubmit(e) {
+  e.preventDefault();
+  const form = e.target, msg = $('#formMsg');
+  F.name = form.name.value; F.discord = form.discord.value; F.passphrase = form.passphrase.value; F.comment = form.comment.value;
+
+  const errs = [];
+  if (!F.name.trim()) errs.push(['name', 'Please enter your name.']);
+  if (!F.raiding) errs.push(['raiding', 'Say whether you plan to raid.']);
+  if (!F.klass) errs.push(['main', 'Pick a class.']);
+  else if (!F.spec) errs.push(['main', 'Pick a spec, or Undecided.']);
+  if (!F.role) errs.push(['role', 'Pick a raid role.']);
+  if (!F.flex) errs.push(['flex', 'Say whether you could switch.']);
+  else if (F.flex === 'yes' && !F.flexRoles.length && !F.flexClasses.length) errs.push(['flex', 'Tick at least one role or class you could switch to, or choose "No, this is my main".']);
+  $$('.card', form).forEach(c => c.classList.remove('error'));
+  if (errs.length) {
+    errs.forEach(([q]) => $(`.card[data-q="${q}"]`).classList.add('error'));
+    msg.innerHTML = notice('error', errs.map(x => esc(x[1])).join(' '));
+    $(`.card[data-q="${errs[0][0]}"]`).scrollIntoView({ behavior: 'smooth', block: 'center' });
+    return;
+  }
+  const payload = {
+    name: F.name.trim(), discord: F.discord.trim(), passphrase: F.passphrase,
+    raiding: F.raiding, klass: F.klass, spec: F.spec, role: F.role,
+    flex: F.flex,
+    flexRoles: F.flex === 'yes' ? F.flexRoles.filter(r => r !== F.role) : [],
+    flexClasses: F.flex === 'yes' ? F.flexClasses.filter(c => c !== F.klass) : [],
+    comment: F.comment.trim()
+  };
+  const btn = $('#submitBtn'); btn.disabled = true; btn.textContent = 'Sending…'; msg.innerHTML = '';
+  try {
+    const res = await api.submit(payload);
+    if (!res || !res.ok) throw new Error((res && res.error) || 'The server did not accept the answers.');
+    store.set(KEY_LAST, Object.assign({}, F, { submittedAt: new Date().toISOString() }));
+    store.del(KEY_DRAFT);
+    F = null; formNote = '';
+    view.innerHTML = `<section class="card center">
+      <h2 class="card-title">Thanks, ${esc(payload.name)}!</h2>
+      <p>${res.updated ? 'Your previous answers were replaced.' : 'Your answers are saved.'}${DEMO ? ' (Demo mode: they live only in this browser.)' : ''}</p>
+      <p><a class="btn btn-primary" href="#results">See the roster</a> <button type="button" class="btn" data-action="edit">Edit my answers</button></p>
+    </section>`;
+    window.scrollTo(0, 0);
+  } catch (err) {
+    msg.innerHTML = notice('error', `Couldn't save your answers: ${esc(err.message || err)}${DEMO ? '' : ' Check your connection and try again.'}`);
+    btn.disabled = false; btn.textContent = 'Submit my answers';
+  }
+}
+
+// =====================================================================
+// Results
+// =====================================================================
+const R = {
+  rows: [], raw: null, scope: 'public', error: '',
+  include: new Set(CONFIG.defaultInclude), raidSize: CONFIG.defaultRaidSize,
+  adminKey: store.get(KEY_ADMIN, ''), generatedAt: ''
+};
+
+function prepRows(responses) {
+  return responses.map(r => Object.assign({}, r, {
+    flexRoles: Array.isArray(r.flexRoles) ? r.flexRoles : String(r.flexRoles || '').split(',').filter(Boolean),
+    flexClasses: Array.isArray(r.flexClasses) ? r.flexClasses : String(r.flexClasses || '').split(',').filter(Boolean)
+  }));
+}
+
+async function renderResults(fetchFresh) {
+  if (fetchFresh || !R.raw) await loadResults();
+  drawResults();
+}
+async function loadResults() {
+  R.error = '';
+  if (!R.raw) view.innerHTML = '<div class="card center">Loading responses…</div>';
+  else view.classList.add('loading');
+  try {
+    let res = null;
+    if (R.adminKey) {
+      res = await api.fetchAdmin(R.adminKey);
+      if (!res || !res.ok) { store.del(KEY_ADMIN); R.adminKey = ''; res = null; }
+    }
+    if (!res) res = await api.fetchPublic();
+    if (!res || !res.ok) throw new Error((res && res.error) || 'Bad response from the server.');
+    R.raw = res; R.scope = res.scope || 'public';
+    R.rows = prepRows(res.responses || []);
+    R.generatedAt = res.generatedAt || new Date().toISOString();
+  } catch (err) {
+    R.error = err.message || String(err);
+  }
+  view.classList.remove('loading');
+}
+
+function pill(p, withClass) {
+  const c = CLASS[p.klass];
+  return `<span class="pill">${withClass && c ? `<span class="sw" style="background:${c.color}"></span>` : ''}<b>${esc(p.name)}</b> · ${esc(withClass && c ? c.name + ' ' : '')}${esc(specLabel(p.spec))} · ${esc(ROLE[p.role] || p.role)}</span>`;
+}
+
+function drawResults() {
+  const admin = R.scope === 'admin';
+  drawFoot(admin);
+  if (R.error && !R.raw) {
+    view.innerHTML = `<div class="card">${notice('error', `Couldn't load results: ${esc(R.error)}`)}<button type="button" class="btn" data-action="reload">Try again</button></div>`;
+    return;
+  }
+  const rows = R.rows;
+  const counted = rows.filter(r => R.include.has(r.raiding));
+  const parts = [adminBar(admin), demoControls(), filterBar(rows, counted)];
+  if (!rows.length) {
+    parts.push(`<div class="card center"><p>No responses yet.</p>${DEMO ? '<p class="help">Use "Load sample data" above to see what the roster looks like.</p>' : ''}</div>`);
+  } else {
+    parts.push(rolesSection(counted), classesSection(counted), matrixSection(counted), flexSection(counted));
+    if (admin) parts.push(commentsSection(rows));
+    parts.push(tableSection(rows, admin));
+  }
+  parts.push(`<p class="help center">Updated ${esc(fmtTime(R.generatedAt))} · <button type="button" class="btn small" data-action="reload">Refresh</button></p>`);
+  view.innerHTML = parts.join('');
+}
+
+function adminBar(admin) {
+  if (!admin) return '';
+  return `<div class="adminbar"><span><strong>Admin view.</strong> Comments and Discord handles are visible to you only.</span>
+    <span class="actions"><button type="button" class="btn small" data-action="csv">Export CSV</button><button type="button" class="btn small" data-action="admin-logout">Sign out</button></span></div>`;
+}
+function demoControls() {
+  if (!DEMO) return '';
+  return `<div class="notice info"><strong>Demo data.</strong> <button type="button" class="btn small" data-action="demo-sample">Load sample data</button><button type="button" class="btn small" data-action="demo-clear">Clear demo data</button></div>`;
+}
+function filterBar(rows, counted) {
+  const n = k => rows.filter(r => r.raiding === k).length;
+  return `<div class="filterbar card">
+    <div class="filter-row"><span class="filter-title">Counting</span>
+      ${['yes', 'maybe', 'no'].map(k => `<button type="button" class="chip${R.include.has(k) ? ' on' : ''}" data-action="chip" data-k="${k}" aria-pressed="${R.include.has(k)}">${esc(RAIDING_SHORT[k])} <span class="chip-n">${n(k)}</span></button>`).join('')}
+      <div class="seg" role="group" aria-label="Raid size">${Object.keys(CONFIG.targets).map(s => `<button type="button" class="seg-btn${+s === R.raidSize ? ' on' : ''}" data-action="size" data-s="${s}">${s}-man</button>`).join('')}</div>
+    </div>
+    <p class="help">Counting <strong>${counted.length}</strong> of ${rows.length} responses. Role targets are for a ${R.raidSize}-man raid and live in the config block.</p>
+  </div>`;
+}
+
+function rolesSection(counted) {
+  const targets = CONFIG.targets[R.raidSize];
+  const tiles = CONFIG.roles.map(([id, label]) => {
+    const have = counted.filter(p => p.role === id);
+    const target = targets[id] || 0;
+    const gap = target - have.length;
+    const cls = gap > 0 ? 'short' : gap < 0 ? 'over' : 'ok';
+    const status = gap > 0 ? `Short ${gap}` : gap < 0 ? `${-gap} spare` : 'Covered';
+    const flexers = counted.filter(p => p.flex === 'yes' && p.role !== id && p.flexRoles.includes(id));
+    const color = gap > 0 ? 'var(--danger)' : gap < 0 ? 'var(--gold)' : 'var(--good)';
+    return `<div class="roletile ${cls}">
+      <div class="rl">${esc(label)}</div>
+      <div class="have">${have.length} <small>of ${target}</small></div>
+      <div class="status">${status}${flexers.length ? ` · ${flexers.length} could flex here` : ''}</div>
+      <div class="gauge"><i style="width:${target ? Math.min(100, have.length / target * 100) : 0}%;background:${color}"></i></div>
+      <div class="names">${have.map(p => pill(p, true)).join('') || '<span class="muted">nobody yet</span>'}</div>
+    </div>`;
+  }).join('');
+  return `<section class="card">
+    <h2 class="card-title">Roles versus target</h2>
+    <p class="help">Mains only, for the people counted above. The targets are a starting point for a ${R.raidSize}-man roster, not a rule.</p>
+    <div class="roletiles">${tiles}</div>
+  </section>`;
+}
+
+function classesSection(counted) {
+  const max = Math.max(1, ...CONFIG.classes.map(c => counted.filter(p => p.klass === c.id).length));
+  const rows = CONFIG.classes.map(c => {
+    const ps = counted.filter(p => p.klass === c.id);
+    const specs = {};
+    ps.forEach(p => { specs[p.spec] = (specs[p.spec] || 0) + 1; });
+    const specLine = c.specs.concat(['undecided']).filter(s => specs[s]).map(s => `${specLabel(s)} ${specs[s]}`).join(' · ');
+    return `<div class="classrow">
+      <div class="cn"><span class="sw" style="background:${c.color}"></span><span>${esc(c.name)}<small>${esc(specLine) || 'none'}</small></span></div>
+      <div class="bar-wrap"><div class="bar-track"><div class="bar-fill" style="width:${ps.length / max * 100}%;background:${c.color}"></div></div>
+      <div class="names" style="margin-top:2px">${ps.map(p => `<span class="pill"><b>${esc(p.name)}</b> · ${esc(specLabel(p.spec))} · ${esc(ROLE[p.role] || p.role)}${p.raiding === 'maybe' ? ' · maybe' : ''}</span>`).join('') || '<span class="muted">nobody yet</span>'}</div></div>
+      <div class="n">${ps.length}</div>
+    </div>`;
+  }).join('');
+  return `<section class="card">
+    <h2 class="card-title">Mains by class</h2>
+    <p class="help">Everyone counted, with their spec and role. "Maybe" raiders are marked.</p>
+    ${rows}
+  </section>`;
+}
+
+function matrixSection(counted) {
+  const head = CONFIG.roles.map(([id, label]) => `<th class="num">${esc(label)}</th>`).join('');
+  const body = CONFIG.classes.map(c => {
+    const cells = CONFIG.roles.map(([id]) => { const n = counted.filter(p => p.klass === c.id && p.role === id).length; return `<td class="num${n ? ' hi' : ''}">${n || '<span class="muted">·</span>'}</td>`; }).join('');
+    const total = counted.filter(p => p.klass === c.id).length;
+    return `<tr><th><span class="sw" style="background:${c.color};width:10px;height:10px;margin-right:6px"></span>${esc(c.name)}</th>${cells}<td class="num"><b>${total}</b></td></tr>`;
+  }).join('');
+  const totals = CONFIG.roles.map(([id]) => `<td class="num"><b>${counted.filter(p => p.role === id).length}</b></td>`).join('');
+  return `<section class="card">
+    <h2 class="card-title">Class × role</h2>
+    <div class="tablewrap"><table class="simple"><thead><tr><th></th>${head}<th class="num">Total</th></tr></thead>
+    <tbody>${body}<tr><th>Total</th>${totals}<td class="num"><b>${counted.length}</b></td></tr></tbody></table></div>
+  </section>`;
+}
+
+function flexSection(counted) {
+  const targets = CONFIG.targets[R.raidSize];
+  const roleBlocks = CONFIG.roles.map(([id, label]) => {
+    const have = counted.filter(p => p.role === id).length;
+    const gap = targets[id] - have;
+    const flexers = counted.filter(p => p.flex === 'yes' && p.role !== id && p.flexRoles.includes(id));
+    return { id, label, gap, flexers };
+  }).sort((a, b) => b.gap - a.gap);
+  const classBlocks = CONFIG.classes.map(c => {
+    const have = counted.filter(p => p.klass === c.id).length;
+    const flexers = counted.filter(p => p.flex === 'yes' && p.klass !== c.id && p.flexClasses.includes(c.id));
+    return { c, have, flexers };
+  }).sort((a, b) => a.have - b.have || b.flexers.length - a.flexers.length);
+  const switchers = counted.filter(p => p.flex === 'yes').length;
+  return `<section class="card">
+    <h2 class="card-title">Who could cover a gap</h2>
+    <p class="help">${switchers} of the ${counted.length} counted people said they would switch if needed. Short roles are listed first; classes with the fewest mains first.</p>
+    <h3>By role</h3>
+    ${roleBlocks.map(b => `<div class="flexblock"><div class="ft">${esc(b.label)}<span class="tag${b.gap > 0 ? ' short' : ''}">${b.gap > 0 ? 'short ' + b.gap : b.gap < 0 ? (-b.gap) + ' spare' : 'covered'}</span></div>
+      <div class="names">${b.flexers.map(p => pill(p, true)).join('') || '<span class="muted">nobody offered to flex into this role</span>'}</div></div>`).join('')}
+    <h3>By class</h3>
+    ${classBlocks.map(b => `<div class="flexblock"><div class="ft"><span class="sw" style="background:${b.c.color};width:10px;height:10px;margin-right:6px"></span>${esc(b.c.name)}<span class="tag${b.have === 0 ? ' none' : ''}">${b.have} main${b.have === 1 ? '' : 's'}</span></div>
+      <div class="names">${b.flexers.map(p => pill(p, true)).join('') || '<span class="muted">nobody offered to switch to this class</span>'}</div></div>`).join('')}
+  </section>`;
+}
+
+function commentsSection(rows) {
+  const list = rows.filter(r => r.comment && r.comment.trim());
+  return `<section class="card">
+    <h2 class="card-title">Comments</h2>
+    <p class="help">Admin only. ${list.length} ${list.length === 1 ? 'person' : 'people'} left something.</p>
+    ${list.map(r => `<div class="comment"><div class="who"><b>${esc(r.name)}</b> · ${esc(CLASS[r.klass] ? CLASS[r.klass].name : r.klass)} ${esc(specLabel(r.spec))} · ${esc(ROLE[r.role] || r.role)}</div><div>${esc(r.comment)}</div></div>`).join('') || '<p class="muted">No comments yet.</p>'}
+  </section>`;
+}
+
+function tableSection(rows, admin) {
+  const sorted = rows.slice().sort((a, b) => String(a.name || '').localeCompare(String(b.name || '')));
+  return `<section class="card">
+    <h2 class="card-title">Everyone</h2>
+    <p class="help">All ${rows.length} responses, including people who are not raiding.</p>
+    <div class="tablewrap"><table class="simple"><thead><tr><th>Name</th>${admin ? '<th>Discord</th>' : ''}<th>Raiding</th><th>Class</th><th>Spec</th><th>Role</th><th>Could switch to</th><th>Updated</th></tr></thead>
+    <tbody>${sorted.map(r => {
+      const c = CLASS[r.klass];
+      const sw = r.flex === 'yes' ? r.flexRoles.map(x => ROLE[x] || x).concat(r.flexClasses.map(x => CLASS[x] ? CLASS[x].name : x)).join(', ') || '<span class="muted">·</span>' : '<span class="muted">no</span>';
+      return `<tr><td><b>${esc(r.name)}</b></td>${admin ? `<td>${esc(r.discord || '')}</td>` : ''}<td>${esc(RAIDING_SHORT[r.raiding] || r.raiding)}</td><td><span class="sw" style="background:${c ? c.color : 'var(--muted)'};width:10px;height:10px;margin-right:6px"></span>${esc(c ? c.name : r.klass)}</td><td>${esc(specLabel(r.spec))}</td><td>${esc(ROLE[r.role] || r.role)}</td><td>${sw}</td><td class="muted">${esc(fmtTime(r.updatedAt))}</td></tr>`;
+    }).join('')}</tbody></table></div>
+  </section>`;
+}
+
+// =====================================================================
+// Admin helpers
+// =====================================================================
+async function adminLogin() {
+  const key = prompt(DEMO ? 'Admin key (demo mode: type demo)' : 'Enter the admin key');
+  if (!key) return;
+  const res = await api.fetchAdmin(key.trim());
+  if (res && res.ok) {
+    R.adminKey = key.trim(); store.set(KEY_ADMIN, R.adminKey);
+    R.raw = res; R.scope = 'admin'; R.rows = prepRows(res.responses || []); R.generatedAt = res.generatedAt || new Date().toISOString();
+    if (!location.hash.startsWith('#results')) location.hash = '#results'; else drawResults();
+  } else {
+    alert((res && res.error) || 'Could not sign in.');
+  }
+}
+function exportCsv() {
+  const cols = ['name', 'discord', 'raiding', 'klass', 'spec', 'role', 'flex', 'flexRoles', 'flexClasses', 'comment', 'updatedAt', 'firstSeen'];
+  const lines = [cols.join(',')];
+  for (const r of R.rows) {
+    lines.push(cols.map(c => {
+      if (c === 'flexRoles' || c === 'flexClasses') return csvCell((r[c] || []).join('|'));
+      return csvCell(r[c] == null ? '' : r[c]);
+    }).join(','));
+  }
+  const blob = new Blob(['﻿' + lines.join('\r\n')], { type: 'text/csv;charset=utf-8' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `rfi-classes-${new Date().toISOString().slice(0, 10)}.csv`;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+}
+function csvCell(v) { const s = String(v); return /[",\r\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s; }
+
+// =====================================================================
+// Event delegation
+// =====================================================================
+document.addEventListener('click', e => {
+  const t = e.target.closest('[data-action]'); if (!t) return;
+  const a = t.dataset.action;
+  if (a === 'reload') { renderResults(true); return; }
+  if (a === 'edit') { loadForm(); renderPoll(); return; }
+  if (a === 'start-fresh') { store.del(KEY_DRAFT); store.del(KEY_LAST); F = null; formNote = ''; renderPoll(); return; }
+  if (a === 'admin-login') { adminLogin(); return; }
+  if (a === 'admin-logout') { R.adminKey = ''; store.del(KEY_ADMIN); R.raw = null; if (location.hash.startsWith('#results')) renderResults(true); else drawFoot(false); return; }
+  if (a === 'csv') { exportCsv(); return; }
+  if (a === 'demo-sample') { api.loadSample(); renderResults(true); return; }
+  if (a === 'demo-clear') { if (confirm('Clear all demo responses?')) { api.clear(); renderResults(true); } return; }
+  if (!R.raw) return;
+  if (a === 'chip') { const k = t.dataset.k; if (R.include.has(k)) R.include.delete(k); else R.include.add(k); drawResults(); }
+  else if (a === 'size') { R.raidSize = +t.dataset.s; drawResults(); }
+});
+
+// =====================================================================
+// Demo sample data (only used when no backend is configured)
+// =====================================================================
+function sampleData() {
+  const rows = [
+    ['Bryan', 'yes', 'warrior', 'Protection', 'tank', ['melee'], []],
+    ['Chaqo', 'yes', 'warrior', 'Fury', 'melee', ['tank'], []],
+    ['Jafar', 'yes', 'warrior', 'Arms', 'melee', [], ['rogue']],
+    ['Waffles', 'yes', 'priest', 'Holy', 'healer', ['ranged'], []],
+    ['Snark', 'yes', 'mage', 'Frost', 'ranged', [], ['warlock', 'priest']],
+    ['Soi', 'yes', 'rogue', 'Combat', 'melee', [], []],
+    ['Ursullah', 'yes', 'druid', 'Restoration', 'healer', ['tank'], []],
+    ['Juzo', 'yes', 'hunter', 'Marksmanship', 'ranged', [], []],
+    ['Moobs Moobington', 'yes', 'paladin', 'Holy', 'healer', ['tank', 'melee'], []],
+    ['Thor', 'yes', 'shaman', 'Restoration', 'healer', ['ranged'], ['priest']],
+    ['Evils', 'yes', 'warlock', 'Affliction', 'ranged', [], []],
+    ['Renkar', 'yes', 'mage', 'Fire', 'ranged', [], []],
+    ['Attila', 'yes', 'rogue', 'undecided', 'melee', [], ['warrior']],
+    ['Kilemawl', 'maybe', 'druid', 'Feral', 'tank', ['melee'], []],
+    ['Belran', 'maybe', 'paladin', 'Retribution', 'melee', ['healer'], []],
+    ['Iroko', 'maybe', 'priest', 'Shadow', 'ranged', ['healer'], []],
+    ['Niache', 'maybe', 'priest', 'Holy', 'healer', [], []],
+    ['Lilly', 'yes', 'hunter', 'Beast Mastery', 'ranged', [], []],
+    ['Icky', 'yes', 'warlock', 'Destruction', 'ranged', [], ['mage']],
+    ['Gibbs', 'no', 'mage', 'Arcane', 'ranged', [], []],
+    ['Riskysteve', 'no', 'rogue', 'Subtlety', 'melee', [], []],
+    ['Bosche', 'yes', 'shaman', 'Enhancement', 'melee', ['healer'], ['druid']]
+  ];
+  const comments = { Attila: 'Rogue unless we have too many, then warrior.', Moobs: 'Happy to tank if it helps.', Thor: 'Resto first, will respec if we are heavy on healers.' };
+  return rows.map(([name, raiding, klass, spec, role, flexRoles, flexClasses], i) => {
+    const when = new Date(Date.now() - i * 3600000).toISOString();
+    return { name, nameKey: name.toLowerCase(), discord: i % 3 === 0 ? name.toLowerCase().replace(/\s+/g, '') : '', raiding, klass, spec, role,
+      flex: (flexRoles.length || flexClasses.length) ? 'yes' : 'no', flexRoles, flexClasses,
+      comment: comments[name.split(' ')[0]] || '', updatedAt: when, firstSeen: when };
+  });
+}
+
+// =====================================================================
+// Boot
+// =====================================================================
+$('#brandName').textContent = CONFIG.guildName;
+$('#brandSub').textContent = `${CONFIG.gameName} class & spec poll`;
+document.title = `${CONFIG.guildShort} Class Poll`;
+drawBanner();
+route();
+</script>
+</body>
+</html>
